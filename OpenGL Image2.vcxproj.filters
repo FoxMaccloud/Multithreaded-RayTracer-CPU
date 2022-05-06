@@ -19,7 +19,7 @@
     <Filter Include="Resource Files\glm">
       <UniqueIdentifier>{c5dd189b-0d99-4de2-8ef5-9846c2777a0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Cherno guide stuff">
+    <Filter Include="Resource Files\OpenGL Stuff">
       <UniqueIdentifier>{9ca814c1-0fe0-4360-8d3e-2c59522dbfed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -64,10 +64,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
-      <Filter>Resource Files\Cherno guide stuff</Filter>
+      <Filter>Resource Files\OpenGL Stuff</Filter>
     </ClCompile>
     <ClCompile Include="IndexBuffer.cpp">
-      <Filter>Resource Files\Cherno guide stuff</Filter>
+      <Filter>Resource Files\OpenGL Stuff</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
       <Filter>Source Files</Filter>
@@ -132,10 +132,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VertexBuffer.h">
-      <Filter>Resource Files\Cherno guide stuff</Filter>
+      <Filter>Resource Files\OpenGL Stuff</Filter>
     </ClInclude>
     <ClInclude Include="ThreadPool.h">
-      <Filter>Resource Files\Cherno guide stuff</Filter>
+      <Filter>Resource Files\OpenGL Stuff</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">
       <Filter>Header Files</Filter>

@@ -5,7 +5,6 @@
 
 #include "ThreadPool.h"
 #include "Camera.h"
-#include "Scene.cpp"
 
 class Renderer
 {

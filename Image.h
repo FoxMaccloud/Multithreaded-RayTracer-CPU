@@ -12,3 +12,20 @@
 void GLClearError();
 bool GLLogCall(const char* functiosn, const char* file, int line);
 ImTextureID generate_texture(ImVec2 textureSize, std::vector<uint32_t> pixelData);
+
+
+// TODO:
+class OGLImage
+{
+public:
+	OGLImage(ImVec2& textureSize, std::vector<uint32_t>& pixelData) : m_imageSize(textureSize), m_image(pixelData){};
+	ImTextureID generate_texture();
+	void updateTexture();
+	
+	GLuint textureId() const { return m_textureId; }
+
+private:
+	GLuint m_textureId = 0;
+	std::vector<uint32_t> m_image;
+	ImVec2 m_imageSize{ 0,0 };
+};

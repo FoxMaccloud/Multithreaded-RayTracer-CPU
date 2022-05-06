@@ -19,7 +19,7 @@ bool GLLogCall(const char* function, const char* file, int line)
 	return true;
 }
 
-ImTextureID generate_texture(ImVec2 textureSize, std::vector<uint32_t> pixelData)
+ImTextureID generate_texture(ImVec2& textureSize, std::vector<uint32_t>& pixelData)
 {
 	GLuint texture;
 	GLCall(glGenTextures(1, &texture));
@@ -32,4 +32,4 @@ ImTextureID generate_texture(ImVec2 textureSize, std::vector<uint32_t> pixelData
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, textureSize.x, textureSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelData.data()));
 	ImTextureID imguiId = (ImTextureID)(uintptr_t)texture;
 	return imguiId;
-}	
+}

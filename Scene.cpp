@@ -9,6 +9,7 @@ void Renderer::set_scene()
 	float aperture = 0.1f;
 
 	m_camera = std::make_unique<Camera>(viewMatrix, 20.0f, aspect_ratio(), aperture, distanceFocus);
+	
 	m_scene.add(Shapes::Sphere(glm::vec3(0, -1000, 0), 3000.0f), Materials::Metal(glm::vec3(0.7, 0.6, 0.5), 0.0f));
 	m_scene.add(Shapes::Sphere(glm::vec3(0, 1, 0), 1.0f), Materials::Metal(glm::vec3(0.5, 0.8, 0.3), 0.0f));
 }

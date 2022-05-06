@@ -34,14 +34,6 @@ std::optional<Hit> Hitableobject::hit(Ray& r, float tMin, float tMax)
 		m_shape);
 }
 
-Objects::Objects()
-{
-}
-
-Objects::~Objects()
-{
-}
-
 void Objects::add(const Shape& shape, const Material& material)
 {
 	size_t matIndex = std::numeric_limits<size_t>::max();

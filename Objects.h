@@ -8,25 +8,6 @@
 #include "Ray.h"
 #include "Shapes.h"
 
-struct Hit
-{
-	float t;
-	glm::vec3 p;
-	glm::vec3 normal;
-	bool front;
-
-	void set_face_normal(const Ray& r, const glm::vec3& outwardNormal)
-	{
-		front = glm::dot(r.direction, outwardNormal) < 0;
-		normal = front ? outwardNormal : -outwardNormal;
-	}
-};
-
-struct Scattering
-{
-	glm::vec3 fading{ 0, 0, 0 };
-	Ray ray{};
-};
 
 using HitResult = std::pair<std::optional<Hit>, std::optional<Scattering>>;
 class Hitableobject
@@ -51,7 +32,7 @@ class Objects
 {
 public:
 	Objects() = default;
-	~Objects();
+	~Objects() { clear_objects(); };
 
 	void clear_objects() { m_objects.clear(); };
 	void add(const Shape& shape, const Material& material);
