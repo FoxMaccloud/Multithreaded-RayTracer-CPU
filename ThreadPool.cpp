@@ -48,7 +48,7 @@ void ThreadPool::worker()
 }
 
 template<typename T>
-inline auto ThreadPool::add_simple_task(T&& function)
+auto ThreadPool::add_simple_task(T&& function)
 {
 	std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
 	m_taskQueue.emplace(std::forward<T>(function));
@@ -57,10 +57,10 @@ inline auto ThreadPool::add_simple_task(T&& function)
 }
 
 template<typename T, typename ...Args>
-auto ThreadPool::add_task(T&& function, Args && ...args)
+std::future<std::invoke_result_t<T, Args...>> ThreadPool::add_task(T&& function, Args && ...args)
 {
 	using return_t = typename std::invoke_result_t<T, Args...>;
-
+	
 	auto task = std::make_shared<std::packaged_task<return_t()>>(
 		std::bind(std::forward<T>(function), std::forward<Args>(args)...));
 

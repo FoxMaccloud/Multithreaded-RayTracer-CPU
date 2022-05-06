@@ -1,5 +1,8 @@
 #include "Gui.h"
 
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+
 Gui::Gui() : m_renderer{std::make_unique<Renderer>()}
 {
 	create_image_buffer();
@@ -65,7 +68,7 @@ void Gui::setup_main_window()
 	theme();
 
 	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
-	ImGui_ImplOpenGL3_Init("#version 410");
+	ImGui_ImplOpenGL3_Init("#version 140");
 }
 
 void Gui::enable_window_resize()
@@ -81,6 +84,15 @@ void Gui::disable_window_resize()
 void Gui::run()
 {
 	// Create a shader from the imagebuffer
+
+	std::vector<uint32_t> test;
+	test.resize(m_windowSize.x * m_windowSize.y, 0);
+	for (uint32_t i = 0; i < m_windowSize.x * m_windowSize.y; i++)
+	{
+		test[i] = 0xFFAC8919; // ABGR
+	}
+
+	ImTextureID render_img = generate_texture(m_windowSize, test);
 
 	bool done = false;
 	while (!done)
@@ -101,18 +113,23 @@ void Gui::run()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+
 		{
 			ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoCollapse);
 			ImGui::Text("Hi!");
 			ImGui::End();
 		}
+		{
+			ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+			if (render_img)
+			{
+				ImGui::Image((void*)(intptr_t)render_img, m_windowSize);
+			}
+			ImGui::End();
+		}
 
-		
 		// Handle States for renderer; Ready/Running/Stop/Pause
 		// Disable resize if running
-	
-
-
 
 		ImGui::Render();
 		int display_w, display_h;
@@ -120,7 +137,6 @@ void Gui::run()
 		glViewport(0, 0, display_w, display_h);
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 		glfwSwapBuffers(m_window);
 	}
 }

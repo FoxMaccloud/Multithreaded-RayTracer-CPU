@@ -13,6 +13,7 @@
 #define WINDOW_TITLE "temp window title"
 
 #include "Renderer.h"
+#include "Image.h"
 
 class Gui
 {
