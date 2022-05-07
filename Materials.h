@@ -1,8 +1,10 @@
 #pragma once
-#include "Objects.h"
+#include <optional>
+#include <variant>
 #include "Math.h"
 #include "glm/glm/gtc/random.hpp"
 #include "glm/glm/gtx/epsilon.hpp"
+#include "Ray.h"
 
 struct Scattering
 {

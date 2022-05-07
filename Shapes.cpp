@@ -1,4 +1,6 @@
 #include "Shapes.h"
+#include "Objects.h"
+
 namespace Shapes {
 	float Sphere::fast_hit(const Ray& r, const float tMin, const float tMax) const
 	{

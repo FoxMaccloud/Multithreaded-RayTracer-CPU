@@ -19,9 +19,8 @@ namespace Materials
 		return emptyResult;
 	}
 
-	bool operator==(Metal& lhs, Metal& rhs)
-	{
-		return false;
-	}
-
+	//bool operator==(Metal& lhs, Metal& rhs)
+	//{
+	//	return false;
+	//}
 }

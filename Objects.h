@@ -13,7 +13,7 @@ using HitResult = std::pair<std::optional<Hit>, std::optional<Scattering>>;
 class Hitableobject
 {
 public:
-	Hitableobject(Shape shape, size_t materialIndex) : m_shape{ shape }, m_materialIndex{ materialIndex } {}
+	Hitableobject(Shape shape, const size_t materialIndex) : m_shape{ shape }, m_materialIndex{ materialIndex } {};
 	virtual ~Hitableobject() = default;
 
 	size_t material_index() { return m_materialIndex; };

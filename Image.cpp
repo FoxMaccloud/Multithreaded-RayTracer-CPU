@@ -19,7 +19,7 @@ bool GLLogCall(const char* function, const char* file, int line)
 	return true;
 }
 
-ImTextureID generate_texture(ImVec2& textureSize, std::vector<uint32_t>& pixelData)
+ImTextureID generate_texture(ImVec2 textureSize, std::vector<uint32_t> pixelData)
 {
 	GLuint texture;
 	GLCall(glGenTextures(1, &texture));

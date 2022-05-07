@@ -1,7 +1,8 @@
 #pragma once
 #include <variant>
+#include <optional>
 #include "Math.h"
-#include "Objects.h"
+#include "Materials.h"
 
 namespace Shapes {
 
@@ -20,7 +21,6 @@ namespace Shapes {
 		glm::vec3 m_center{ 0,0,0 };
 		float m_radius;
 	};
-
 }
 
 using Shape = std::variant<Shapes::Sphere>;
