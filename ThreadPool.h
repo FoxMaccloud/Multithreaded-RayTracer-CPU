@@ -6,6 +6,7 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <vector>
 
 class ThreadPool
 {
@@ -13,11 +14,34 @@ public:
 	ThreadPool(int nThreads);
 	~ThreadPool();
 
-	template <typename T>
-	auto add_simple_task(T&& function);
+	template<typename T>
+	auto add_simple_task(T&& function)
+	{
+		std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
+		m_taskQueue.emplace(std::forward<T>(function));
 
-	template<typename T, typename... Args>
-	std::future<std::invoke_result_t<T, Args...>> add_task(T&& function, Args &&...args);
+		m_poolNotifier.notify_one();
+	}
+
+
+	template<typename T, typename ...Args>
+	std::future<std::invoke_result_t<T, Args...>> add_task(T&& function, Args && ...args)
+	{
+		using return_t = typename std::invoke_result_t<T, Args...>;
+
+		auto task = std::make_shared<std::packaged_task<return_t()>>(
+			std::bind(std::forward<T>(function), std::forward<Args>(args)...));
+		
+		std::future<return_t> result = task->get_future();
+		{
+			std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
+
+			m_taskQueue.emplace([task]() { (*task)(); });
+		}
+		m_poolNotifier.notify_one();
+
+		return result;
+	}
 
 	void emergency_stop();
 	void pause(bool pauseState);

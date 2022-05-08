@@ -10,13 +10,13 @@
 class Renderer
 {
 public:
-	enum RenderState
+	enum class RenderState
 	{
 		Ready,
 		Running,
 		Stop
 	};
-	enum Strategy
+	enum class Strategy
 	{
 		Line,
 		Quad
@@ -47,17 +47,17 @@ private:
 
 	uint32_t m_samplesPerPixel = 10;
 	uint32_t m_maxRayDepth = 5;
-	uint32_t m_nThreads;
+	uint32_t m_nThreads = 0;
 
 
 	// Threads
 	// TP + Main T
-	std::unique_ptr<ThreadPool> threadpool;
+	std::unique_ptr<ThreadPool> m_threadpool;
 
 	Objects m_scene;
 	std::unique_ptr<Camera> m_camera;
 
-	glm::vec3 shoot_ray(Ray& ray, uint32_t depth);
+	glm::vec3 shoot_ray(const Ray& ray, uint32_t depth);
 	void write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm::vec3 pixelColor);
 
 	float aspect_ratio() { return (static_cast<float>(m_viewPort.x) / static_cast<float>(m_viewPort.y)); };

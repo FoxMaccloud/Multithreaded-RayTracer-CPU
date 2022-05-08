@@ -4,7 +4,7 @@
 template <class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template <class... Ts> overload(Ts...)->overload<Ts...>;
 
-float Hitableobject::fast_hit(Ray& r, float tMin, float tMax)
+float Hitableobject::fast_hit(const Ray& r, float tMin, float tMax)
 {
 	return std::visit(
 		overload{
@@ -13,7 +13,7 @@ float Hitableobject::fast_hit(Ray& r, float tMin, float tMax)
 		m_shape);
 }
 
-Hit Hitableobject::compute_hit(Ray& r, float t)
+Hit Hitableobject::compute_hit(const Ray& r, float t)
 {
 	std::optional<Hit> empty_result{};
 
@@ -24,7 +24,7 @@ Hit Hitableobject::compute_hit(Ray& r, float t)
 		m_shape);
 }
 
-std::optional<Hit> Hitableobject::hit(Ray& r, float tMin, float tMax)
+std::optional<Hit> Hitableobject::hit(const Ray& r, float tMin, float tMax)
 {
 	return std::visit(
 		overload{
@@ -37,7 +37,7 @@ void Objects::add(const Shape& shape, const Material& material)
 {
 	size_t matIndex = std::numeric_limits<size_t>::max();
 
-	if (auto matIt = std::find(begin(m_materials), end(m_materials), material); matIt == end(m_materials))
+	if (const auto matIt = std::find(begin(m_materials), end(m_materials), material); matIt == end(m_materials))
 	{
 		m_materials.push_back(material);
 		matIndex = m_materials.size() - 1;
@@ -49,7 +49,7 @@ void Objects::add(const Shape& shape, const Material& material)
 	m_objects.emplace_back(shape, matIndex);
 }
 
-HitResult Objects::hit(Ray& r, float tMin, float tMax)
+HitResult Objects::hit(const Ray& r, float tMin, float tMax)
 {
 	HitResult emptyResult{};
 

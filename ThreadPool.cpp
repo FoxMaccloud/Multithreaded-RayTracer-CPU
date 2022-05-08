@@ -1,4 +1,5 @@
 #include "ThreadPool.h"
+
 ThreadPool::ThreadPool(int nThreads)
 {
 	m_stopProcessing = false;
@@ -46,35 +47,6 @@ void ThreadPool::worker()
 		task();
 	}
 }
-
-template<typename T>
-auto ThreadPool::add_simple_task(T&& function)
-{
-	std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
-	m_taskQueue.emplace(std::forward<T>(function));
-
-	m_poolNotifier.notify_one();
-}
-
-template<typename T, typename ...Args>
-std::future<std::invoke_result_t<T, Args...>> ThreadPool::add_task(T&& function, Args && ...args)
-{
-	using return_t = typename std::invoke_result_t<T, Args...>;
-	
-	auto task = std::make_shared<std::packaged_task<return_t()>>(
-		std::bind(std::forward<T>(function), std::forward<Args>(args)...));
-
-	std::future<return_t> result = task->getFuture();
-	{
-		std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
-
-		m_taskQueue.emplace([task]() { (*task)(); });
-	}
-	m_poolNotifier.notify_one();
-
-	return result;
-}
-
 
 void ThreadPool::emergency_stop()
 {

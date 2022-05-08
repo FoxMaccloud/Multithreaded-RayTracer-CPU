@@ -17,9 +17,9 @@ public:
 	virtual ~Hitableobject() = default;
 
 	size_t material_index() { return m_materialIndex; };
-	float fast_hit(Ray& r, float tMin, float tMax);
-	Hit compute_hit(Ray& r, float t);
-	std::optional<Hit> hit(Ray& r, float tMin, float tMax);
+	float fast_hit(const Ray& r, float tMin, float tMax);
+	Hit compute_hit(const Ray& r, float t);
+	std::optional<Hit> hit(const Ray& r, float tMin, float tMax);
 
 private:
 	Shape m_shape;
@@ -37,7 +37,7 @@ public:
 	void clear_objects() { m_objects.clear(); };
 	void add(const Shape& shape, const Material& material);
 
-	HitResult hit(Ray& r, float tMin, float tMax);
+	HitResult hit(const Ray& r, float tMin, float tMax);
 private:
 
 	std::vector<Hitableobject> m_objects;

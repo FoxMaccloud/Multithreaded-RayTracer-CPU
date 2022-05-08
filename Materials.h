@@ -30,19 +30,20 @@ namespace Materials
 {
 	class Metal
 	{
-		friend bool operator==(Metal& lhs, Metal& rhs);
+		friend bool operator==(const Metal& lhs, const Metal& rhs);
 
 	public:
 		Metal(glm::vec3 ratio, float softness);
 
-		std::optional<Scattering> scatter(Ray& rIn, Hit& rec);
+		std::optional<Scattering> scatter(const Ray& rIn, Hit& rec);
 
 
 	private:
 		glm::vec3 m_ratio;
 		float m_softness{ 1.0f };
 	};
-	inline bool operator==(Metal& lhs, Metal& rhs)
+
+	inline bool operator==(const Metal& lhs, const Metal& rhs)
 	{
 		return (lhs.m_ratio == rhs.m_ratio) && (lhs.m_softness && rhs.m_softness);
 	}

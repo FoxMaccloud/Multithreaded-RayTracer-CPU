@@ -28,6 +28,7 @@ void Gui::resize_image(ImVec2 newSize)
 	m_renderer->set_image_size(m_windowSize.x, m_windowSize.y);
 	m_renderer->set_new_buffer(m_imageBuffer);
 }
+
 void Gui::create_image_buffer()
 {
 	m_imageBuffer.clear();
@@ -83,8 +84,7 @@ void Gui::disable_window_resize()
 
 void Gui::run()
 {
-	// Create a shader from the imagebuffer
-
+	// Create a image from the pixeldata
 	std::vector<uint32_t> test;
 	test.resize(m_windowSize.x * m_windowSize.y, 0);
 	for (uint32_t i = 0; i < m_windowSize.x * m_windowSize.y; i++)
@@ -118,6 +118,7 @@ void Gui::run()
 			ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoCollapse);
 			ImGui::Text("Hi!");
 			ImGui::End();
+			// Put renderer::start on a new thread.
 		}
 		{
 			ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
