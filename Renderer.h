@@ -6,6 +6,7 @@
 #include "ThreadPool.h"
 #include "Camera.h"
 #include "Objects.h"
+#include <random>
 
 class Renderer
 {
@@ -21,6 +22,11 @@ public:
 	{
 		Line,
 		Quad
+	};
+	enum class Scenes
+	{
+		test1,
+		test2
 	};
 
 	struct Quad
@@ -42,8 +48,7 @@ public:
 	void set_samples_per_pixel(uint32_t nSamples) { m_samplesPerPixel = nSamples; }
 	void set_max_ray_bounces(uint32_t nBounces) { m_maxRayDepth = nBounces; }
 	void set_nThreads(uint32_t nThreads) { m_nThreads = nThreads; };
-	//RenderState state() { return m_state; } Already public...
-	void set_scene();
+	void set_scene(Scenes scene) { m_selectedScene = scene; };
 
 	void start(uint32_t n_threads);
 	void stop();
@@ -58,12 +63,15 @@ private:
 	uint32_t m_maxRayDepth = 5;
 	uint32_t m_nThreads = 0; // will throw error if > 0!
 
+	std::mt19937 m_rng{};
+	std::uniform_real_distribution<float> m_unifDist{ 0.0f, 1.0f };
 
-	// Threads
-	// TP + Main T
 	std::unique_ptr<ThreadPool> m_threadpool;
 
+	Scenes m_selectedScene;
 	Objects m_scene;
+	void set_selected_scene(Scenes scene);
+
 	std::unique_ptr<Camera> m_camera;
 
 	std::vector<Quad> split_image(uint32_t quadSize = 150); // Add quadSize to settings?

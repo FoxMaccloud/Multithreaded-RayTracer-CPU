@@ -18,7 +18,7 @@ Camera::Camera(CameraOrientation orientation, float fov, float aspectRatio, floa
 	m_lowerLeftCorner = m_origin - m_horizontal / 2.0f - m_vertical / 2.0f - focusDist * w;
 }
 
-Ray Camera::NewRay(float s, float t)
+Ray Camera::new_ray(float s, float t) const
 {
 	glm::vec2 randVec = glm::diskRand(m_lensRadius);
 	glm::vec3 offset = u * randVec.x + v * randVec.y;

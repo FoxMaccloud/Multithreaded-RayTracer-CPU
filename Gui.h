@@ -52,7 +52,7 @@ private:
 	ImVec2 m_topBar{ 0,0 };
 	ImVec2 m_settingsWindow{ 0,0 };
 	int m_settingsWidthScale = 4;
-	GLuint m_imageTexture;
+	ImTextureID m_imageTexture;
 
 	void menu();
 };

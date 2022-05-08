@@ -50,24 +50,24 @@ void Renderer::start(uint32_t n_threads)
 {
 	m_state = RenderState::Running;
 
+	set_selected_scene(m_selectedScene);
+
 	m_threadpool = std::make_unique<ThreadPool>(n_threads);
 	
-	auto renderLine = [this](uint32_t lineCord)
+	auto renderLine = [this](const uint32_t lineCord)
 	{
 		if (m_state == RenderState::Stop)
 			return;
 
 		for (uint32_t x = 0; x < m_viewPort.x; ++x)
 		{
-			auto pixelCord = glm::uvec2{ x, lineCord };
+			const auto pixelCord = glm::uvec2{ x, lineCord };
 			glm::vec3 pixelColor{ 0,0,0 };
 			for (uint32_t sample = 0; sample < m_samplesPerPixel; ++sample)
 			{
-				//auto u = (static_cast<float>(pixelCord.x) + m_unifDistribution(m_rnGenerator)) / (m_viewPort.x - 1);
-				//auto v = (static_cast<float>(pixelCord.y) + m_unifDistribution(m_rnGenerator)) / (m_viewPort.y - 1);
-				auto u = (static_cast<float>(pixelCord.x)) / (m_viewPort.x - 1);
-				auto v = (static_cast<float>(pixelCord.y)) / (m_viewPort.y - 1);
-				Ray r = m_camera->NewRay(u, v);
+				const auto u = (static_cast<float>(pixelCord.x) + m_unifDist(m_rng)) / (m_viewPort.x - 1);
+				const auto v = (static_cast<float>(pixelCord.y) + m_unifDist(m_rng)) / (m_viewPort.y - 1);
+				Ray r = m_camera->new_ray(u, v);
 				pixelColor += shoot_ray(r, m_maxRayDepth);
 			}
 			write_pix_to_buffer(pixelCord, m_samplesPerPixel, pixelColor);
@@ -82,11 +82,11 @@ void Renderer::start(uint32_t n_threads)
 		for (uint32_t j = maxCoo.y; j > minCoo.y; --j) {
 			for (uint32_t i = minCoo.x; i < maxCoo.x; ++i) {
 				glm::vec3 pixelColor{ 0,0,0 };
-				auto pixelCord = glm::uvec2{ i, j - 1 };
+				const auto pixelCord = glm::uvec2{ i, j - 1 };
 				for (uint32_t sample = 0; sample < m_samplesPerPixel; ++sample) {
-					auto u = (static_cast<float>(pixelCord.x)) / (m_viewPort.x - 1);
-					auto v = (static_cast<float>(pixelCord.y)) / (m_viewPort.y - 1);
-					Ray r = m_camera->NewRay(u, v);
+					const auto u = (static_cast<float>(pixelCord.x) + m_unifDist(m_rng)) / (m_viewPort.x - 1);
+					const auto v = (static_cast<float>(pixelCord.y) + m_unifDist(m_rng)) / (m_viewPort.y - 1);
+					Ray r = m_camera->new_ray(u, v);
 					pixelColor += shoot_ray(r, m_maxRayDepth);
 				}
 				write_pix_to_buffer(pixelCord, m_samplesPerPixel, pixelColor);
@@ -105,9 +105,8 @@ void Renderer::start(uint32_t n_threads)
 		break;
 	case Strategy::Quad:
 		// Render per-quad
-		for (const auto& [minCoo, maxCoo] : split_image()) {
+		for (const auto& [minCoo, maxCoo] : split_image())
 			futures.push_back(m_threadpool->add_task(renderQuad, minCoo, maxCoo));
-		}
 		break;
 	default:
 		throw std::runtime_error("ERROR: No strategy selected!");
@@ -160,4 +159,6 @@ void Renderer::write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm:
 	w_color |= static_cast<uint32_t>(255 * pixelColor.x) << 16;
 	w_color |= static_cast<uint32_t>(255 * pixelColor.y) << 8;
 	w_color |= static_cast<uint32_t>(255 * pixelColor.z) << 0;
+
+	m_imageBuffer[index] = w_color;
 }

@@ -15,7 +15,7 @@ public:
 	Camera(CameraOrientation orientation, float fov, float aspectRatio, float aperture, float focusDist);
 	//~Camera();
 
-	Ray NewRay(float s, float t);
+	Ray new_ray(float s, float t) const;
 
 private:
 	float m_viewportHeight{ 2.0f };

@@ -17,15 +17,17 @@ public:
 	template<typename T>
 	auto add_simple_task(T&& function)
 	{
-		std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
-		m_taskQueue.emplace(std::forward<T>(function));
-
+		{
+			std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
+			m_taskQueue.emplace(std::forward<T>(function));
+		}
 		m_poolNotifier.notify_one();
 	}
 
 
-	template<typename T, typename ...Args>
-	std::future<std::invoke_result_t<T, Args...>> add_task(T&& function, Args && ...args)
+	template<typename T, typename...Args>
+	auto add_task(T&& function, Args && ...args)
+		-> std::future<typename std::invoke_result_t<T, Args...>>
 	{
 		using return_t = typename std::invoke_result_t<T, Args...>;
 
@@ -33,11 +35,13 @@ public:
 			std::bind(std::forward<T>(function), std::forward<Args>(args)...));
 		
 		std::future<return_t> result = task->get_future();
+		
 		{
 			std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
 
 			m_taskQueue.emplace([task]() { (*task)(); });
 		}
+		
 		m_poolNotifier.notify_one();
 
 		return result;

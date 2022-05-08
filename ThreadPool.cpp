@@ -41,6 +41,7 @@ void ThreadPool::worker()
 				});
 			if ((m_stopProcessing && m_taskQueue.empty()) || m_emergencyStop)
 				return;
+			
 			task = std::move(m_taskQueue.front());
 			m_taskQueue.pop();
 		}

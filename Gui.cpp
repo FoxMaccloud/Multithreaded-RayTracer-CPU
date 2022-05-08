@@ -1,7 +1,6 @@
 #include "Gui.h"
 
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
+#include "Image.h"
 
 Gui::Gui() : m_renderer{std::make_unique<Renderer>()}
 {
@@ -46,7 +45,7 @@ void Gui::resize_image(ImVec2 newSize)
 void Gui::create_image_buffer()
 {
 	m_imageBuffer.clear();
-	m_imageBuffer.resize(m_viewport.x * m_viewport.y, 0);
+	m_imageBuffer.resize(m_viewport.x * m_viewport.y, 0x00000000);
 }
 
 void Gui::setup_main_window()
@@ -167,15 +166,21 @@ inline void Gui::menu()
 
 
 		const char* stratCopy[] = { "Line" , "Quad" };
-		static int currentIndex = 0;
-		const char* showValue = stratCopy[currentIndex];
+		static int currentIndexStrat = 0;
+		const char* showValueStrat = stratCopy[currentIndexStrat];
+
+		const char* scenes[] = { "test1", "test2" };
+		static int currentIndexScene = 0;
+		const char* showValueScenes = scenes[currentIndexScene];
+
+
 
 		ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 		ImGui::SetWindowPos(ImVec2((m_windowSize.x - m_settingsWindow.x), m_topbarHeight), NULL);
 		ImGui::SetWindowSize(m_settingsWindow, NULL);
 		{
 			ImGui::Text("Numer of threads");
-			ImGui::InputInt("##", &nThreads);
+			ImGui::InputInt("##nThreads", &nThreads);
 			if (nThreads < 1)
 				nThreads = 1;
 
@@ -190,13 +195,13 @@ inline void Gui::menu()
 				maxRayDepth = 1;
 
 			ImGui::Text("Threading Strategy");
-			if (ImGui::BeginCombo("##strategy", showValue, NULL))
+			if (ImGui::BeginCombo("##strategy", showValueStrat, NULL))
 			{
 				for (int n = 0; n < IM_ARRAYSIZE(stratCopy); n++)
 				{
-					const bool isSelected = (currentIndex == n);
+					const bool isSelected = (currentIndexStrat == n);
 					if (ImGui::Selectable(stratCopy[n], isSelected))
-						currentIndex = n;
+						currentIndexStrat = n;
 
 					if (isSelected)
 						ImGui::SetItemDefaultFocus();
@@ -204,12 +209,53 @@ inline void Gui::menu()
 				ImGui::EndCombo();
 			}
 
+			ImGui::Text("Scene");
+			if (ImGui::BeginCombo("##scene", showValueScenes, NULL))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(scenes); n++)
+				{
+					const bool isSelected = (currentIndexScene == n);
+					if (ImGui::Selectable(scenes[n], isSelected))
+						currentIndexScene = n;
+
+					if (isSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
 
 			if (ImGui::Button("START"))
 			{
 				m_renderer->set_samples_per_pixel(samplesPerPixel);
 				m_renderer->set_max_ray_bounces(maxRayDepth);
 				m_renderer->set_nThreads(nThreads);
+
+				switch (currentIndexStrat)
+				{
+				case (0):
+					m_renderer->m_strat = Renderer::Strategy::Line;
+					break;
+				case(1):
+					m_renderer->m_strat = Renderer::Strategy::Quad;
+					break;
+				default:
+					throw std::runtime_error("Error: Invalid strategy!");
+					break;
+				}
+
+				switch (currentIndexScene)
+				{
+				case (0):
+					m_renderer->set_scene(Renderer::Scenes::test1);
+					break;
+				case(1):
+					m_renderer->set_scene(Renderer::Scenes::test2);
+					break;
+				default:
+					throw std::runtime_error("Error: Invalid Scene!");
+					break;
+				}
+
 				m_renderingThread = std::thread{ &Gui::start_render, this, nThreads };
 			}
 			ImGui::SameLine(); if (ImGui::Button("PAUSE")) { m_renderer->m_state = Renderer::RenderState::Pause; };
@@ -238,8 +284,26 @@ void Gui::run()
 
 		menu();
 
-		// Handle States for renderer; Ready/Running/Stop/Pause
-		// Disable resize if running
+		GLuint texture;
+		GLCall(glGenTextures(1, &texture));
+		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		ImTextureID m_imageTexture = (ImTextureID)(uintptr_t)texture;
+
+		if (m_imageTexture)
+		{
+			ImGui::Begin("##viewportRender", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+			ImGui::SetWindowSize(m_viewport, NULL);
+			ImGui::SetWindowPos(ImVec2(0, m_topbarHeight), NULL);
+			{
+				ImGui::Image((void*)(intptr_t)m_imageTexture, m_viewport);
+			}
+			ImGui::End();
+		}
 
 		ImGui::Render();
 		int display_w, display_h;
@@ -248,6 +312,9 @@ void Gui::run()
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(m_window);
+
+		// Delete the texture so we don't leak memory!
+		GLCall(glDeleteTextures(1, &texture));
 	}
 }
 
