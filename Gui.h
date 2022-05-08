@@ -35,6 +35,8 @@ private:
 
 	// Our raytracer doing work
 	std::unique_ptr<Renderer> m_renderer;
+	std::thread m_renderingThread;
+	void start_render(int nThreads);
 
 	void resize_image(ImVec2 newSize);
 	void create_image_buffer();
@@ -43,4 +45,14 @@ private:
 	bool m_windowResize = false;
 	void enable_window_resize();
 	void disable_window_resize();
+
+private:
+	int m_topbarHeight = 20;
+	ImVec2 m_viewport{ 0,0 };
+	ImVec2 m_topBar{ 0,0 };
+	ImVec2 m_settingsWindow{ 0,0 };
+	int m_settingsWidthScale = 4;
+	GLuint m_imageTexture;
+
+	void menu();
 };

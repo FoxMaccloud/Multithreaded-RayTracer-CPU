@@ -13,6 +13,8 @@ Gui::Gui() : m_renderer{std::make_unique<Renderer>()}
 
 Gui::~Gui()
 {
+	m_renderingThread.join();
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -24,15 +26,27 @@ Gui::~Gui()
 void Gui::resize_image(ImVec2 newSize)
 {
 	m_windowSize = newSize;
+
+	{
+		m_topBar.x = m_windowSize.x;
+		m_topBar.y = m_topbarHeight;
+
+		m_settingsWindow.x = m_windowSize.x / m_settingsWidthScale;
+		m_settingsWindow.y = m_windowSize.y - m_topbarHeight;
+
+		m_viewport.x = m_windowSize.x - m_settingsWindow.x;
+		m_viewport.y = m_windowSize.y - m_topbarHeight;
+	}
+
 	create_image_buffer();
-	m_renderer->set_image_size(m_windowSize.x, m_windowSize.y);
+	m_renderer->set_image_size(m_viewport.x, m_viewport.y);
 	m_renderer->set_new_buffer(m_imageBuffer);
 }
 
 void Gui::create_image_buffer()
 {
 	m_imageBuffer.clear();
-	m_imageBuffer.resize(m_windowSize.x * m_windowSize.y, 0);
+	m_imageBuffer.resize(m_viewport.x * m_viewport.y, 0);
 }
 
 void Gui::setup_main_window()
@@ -40,6 +54,7 @@ void Gui::setup_main_window()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.IniFilename = NULL;
 
 	// These values gets overwritten by GLFW_MAXIMIZED. This is just to fall back on...
 	this->m_windowSize = { 1280, 720 };
@@ -75,34 +90,142 @@ void Gui::setup_main_window()
 void Gui::enable_window_resize()
 {
 	// Enable when not rendering
+	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_TRUE);
 }
 
 void Gui::disable_window_resize()
 {
 	// Disable when rendering
+	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
+}
+
+void Gui::start_render(int nThreads)
+{
+	m_renderer->start(nThreads);
+}
+
+inline void Gui::menu()
+{
+	ImVec2 size = ImGui::GetIO().DisplaySize;
+
+	switch (m_renderer->m_state)
+	{
+	case (Renderer::RenderState::Running):
+		disable_window_resize();
+		break;
+	case (Renderer::RenderState::Ready):
+		enable_window_resize();
+		break;
+	default:
+		break;
+	}
+
+	if (((m_windowSize.x != size.x) || (m_windowSize.y != size.y)) && m_renderer->m_state == Renderer::RenderState::Ready)
+		if (m_windowSize.x > 0 && m_windowSize.y > 0)
+			resize_image(size);
+
+	// topbar
+	{
+		ImGui::Begin("##topbar", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+		ImGui::SetWindowSize(m_topBar, NULL);
+		ImGui::SetWindowPos(ImVec2(0, 0), NULL);
+
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("New")) {}
+				//if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+				if (ImGui::MenuItem("Save As..")) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Edit"))
+			{
+				if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+				if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+				if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Help"))
+			{
+				if (ImGui::MenuItem("About")) {}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+		// TODO: Add [-][O][x] (minimize, maximize, exit)
+		ImGui::End();
+	}
+
+	// settings menu
+	{
+
+		// ImGui doesn't take uints
+		static int nThreads = 1;
+		static int samplesPerPixel = 10;
+		static int maxRayDepth = 5;
+
+
+		const char* stratCopy[] = { "Line" , "Quad" };
+		static int currentIndex = 0;
+		const char* showValue = stratCopy[currentIndex];
+
+		ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+		ImGui::SetWindowPos(ImVec2((m_windowSize.x - m_settingsWindow.x), m_topbarHeight), NULL);
+		ImGui::SetWindowSize(m_settingsWindow, NULL);
+		{
+			ImGui::Text("Numer of threads");
+			ImGui::InputInt("##", &nThreads);
+			if (nThreads < 1)
+				nThreads = 1;
+
+			ImGui::Text("Samples per Pixel"); 
+			ImGui::InputInt("##sampels", &samplesPerPixel);
+			if (samplesPerPixel < 1)
+				samplesPerPixel = 1;
+
+			ImGui::Text("Max Ray Depth");
+			ImGui::InputInt("##depth", &maxRayDepth);
+			if (maxRayDepth < 1)
+				maxRayDepth = 1;
+
+			ImGui::Text("Threading Strategy");
+			if (ImGui::BeginCombo("##strategy", showValue, NULL))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(stratCopy); n++)
+				{
+					const bool isSelected = (currentIndex == n);
+					if (ImGui::Selectable(stratCopy[n], isSelected))
+						currentIndex = n;
+
+					if (isSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+
+			if (ImGui::Button("START"))
+			{
+				m_renderer->set_samples_per_pixel(samplesPerPixel);
+				m_renderer->set_max_ray_bounces(maxRayDepth);
+				m_renderer->set_nThreads(nThreads);
+				m_renderingThread = std::thread{ &Gui::start_render, this, nThreads };
+			}
+			ImGui::SameLine(); if (ImGui::Button("PAUSE")) { m_renderer->m_state = Renderer::RenderState::Pause; };
+			ImGui::SameLine(); if (ImGui::Button("ABORT")) { m_renderer->m_state = Renderer::RenderState::Stop;  };
+		}
+		ImGui::End();
+	}
 }
 
 void Gui::run()
 {
 	// Create a image from the pixeldata
-	std::vector<uint32_t> test;
-	test.resize(m_windowSize.x * m_windowSize.y, 0);
-	for (uint32_t i = 0; i < m_windowSize.x * m_windowSize.y; i++)
-	{
-		test[i] = 0xFFAC8919; // ABGR
-	}
 
-	ImTextureID render_img = generate_texture(m_windowSize, test);
-
-	bool done = false;
+	static bool done = false;
 	while (!done)
 	{
-		if (m_windowResize)
-		{
-			// Recreate shader/buffer/etc.
-			m_windowResize = false;
-		}
-
 		if (glfwWindowShouldClose(m_window))
 		{
 			done = true;
@@ -113,21 +236,7 @@ void Gui::run()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-
-		{
-			ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoCollapse);
-			ImGui::Text("Hi!");
-			ImGui::End();
-			// Put renderer::start on a new thread.
-		}
-		{
-			ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
-			if (render_img)
-			{
-				ImGui::Image((void*)(intptr_t)render_img, m_windowSize);
-			}
-			ImGui::End();
-		}
+		menu();
 
 		// Handle States for renderer; Ready/Running/Stop/Pause
 		// Disable resize if running

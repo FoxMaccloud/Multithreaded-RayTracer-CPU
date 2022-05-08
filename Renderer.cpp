@@ -9,11 +9,41 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 	// Stop jobs && Sync threads
+	switch (m_state)
+	{
+	case Renderer::RenderState::Ready:
+		break;
+	case Renderer::RenderState::Running:
+		m_state = RenderState::Stop;
+		m_threadpool->emergency_stop();
+		break;
+	case Renderer::RenderState::Stop:
+		m_threadpool->emergency_stop();
+		break;
+	default:
+		break;
+	}
 }
 
 void Renderer::set_image_size(float x, float y)
 {
 	m_viewPort = { x, y };
+}
+
+std::vector<Renderer::Quad> Renderer::split_image(uint32_t quadSize)
+{
+	glm::uvec2 u_viewPort{ m_viewPort.x, m_viewPort.y };
+	std::vector<Quad> result;
+	uint32_t numX = static_cast<uint32_t>(std::ceil(m_viewPort.x / static_cast<float>(quadSize)));
+	uint32_t numY = static_cast<uint32_t>(std::ceil(m_viewPort.y / static_cast<float>(quadSize)));
+	for (uint32_t y = numY; y > 0; --y)
+	{
+		for (uint32_t x = 0; x < numX; ++x)
+		{
+			result.emplace_back(glm::uvec2{ x * quadSize, (y - 1) * quadSize }, glm::min(glm::uvec2{ (x + 1) * quadSize, y * quadSize }, u_viewPort));
+		}
+	}
+	return result;
 }
 
 void Renderer::start(uint32_t n_threads)
@@ -75,9 +105,9 @@ void Renderer::start(uint32_t n_threads)
 		break;
 	case Strategy::Quad:
 		// Render per-quad
-		//for (const auto& [minCoo, maxCoo] : SplitImage()) {
-		//	futures.push_back(m_threadPool.AddTask(renderQuad, minCoo, maxCoo));
-		//}
+		for (const auto& [minCoo, maxCoo] : split_image()) {
+			futures.push_back(m_threadpool->add_task(renderQuad, minCoo, maxCoo));
+		}
 		break;
 	default:
 		throw std::runtime_error("ERROR: No strategy selected!");
@@ -125,9 +155,9 @@ void Renderer::write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm:
 
 	uint32_t index = (pixelCords.x + (pixelCords.y * m_viewPort.x));
 
-	uint32_t w_color = 0x000000FF;
+	uint32_t w_color = 0xFF000000;
 
-	w_color |= static_cast<uint32_t>(255 * pixelColor.x) << 8;
-	w_color |= static_cast<uint32_t>(255 * pixelColor.y) << 16;
-	w_color |= static_cast<uint32_t>(255 *pixelColor.z) << 24;
+	w_color |= static_cast<uint32_t>(255 * pixelColor.x) << 16;
+	w_color |= static_cast<uint32_t>(255 * pixelColor.y) << 8;
+	w_color |= static_cast<uint32_t>(255 * pixelColor.z) << 0;
 }
