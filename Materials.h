@@ -1,9 +1,9 @@
 #pragma once
 #include <optional>
 #include <variant>
-#include "Math.h"
-#include "glm/glm/gtc/random.hpp"
-#include "glm/glm/gtx/epsilon.hpp"
+#include "MyMath.h"
+#include <glm/gtc/random.hpp>
+#include <glm/gtc/epsilon.hpp>
 #include "Ray.h"
 
 struct Scattering

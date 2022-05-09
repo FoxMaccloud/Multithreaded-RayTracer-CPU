@@ -1,6 +1,6 @@
 #pragma once
 #include "Ray.h"
-#include "Math.h"
+#include "MyMath.h"
 
 class Camera
 {

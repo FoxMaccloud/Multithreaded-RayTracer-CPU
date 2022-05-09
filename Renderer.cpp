@@ -100,7 +100,7 @@ void Renderer::start(uint32_t n_threads)
 	{
 	case Strategy::Line:
 		// Render per-line
-		for (int line = m_viewPort.y - 1; line >= 0; --line)
+		for (int line = (int) m_viewPort.y - 1; line >= 0; --line)
 			futures.push_back(m_threadpool->add_task(renderLine, line));
 		break;
 	case Strategy::Quad:
@@ -165,7 +165,7 @@ void Renderer::write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm:
 	pixelColor = glm::sqrt(pixelColor);
 	pixelColor = glm::clamp(pixelColor, 0.0f, 1.0f);
 
-	uint32_t index = (pixelCords.x + (pixelCords.y * m_viewPort.x));
+	uint32_t index = (pixelCords.x + (pixelCords.y * (int) m_viewPort.x));
 
 	uint32_t w_color = 0xFF000000;
 

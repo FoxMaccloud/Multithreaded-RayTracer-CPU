@@ -1,7 +1,7 @@
 #pragma once
 #include <variant>
 #include <optional>
-#include "Math.h"
+#include "MyMath.h"
 #include "Materials.h"
 
 namespace Shapes {
