@@ -161,8 +161,8 @@ inline void Gui::menu()
 
 		// ImGui doesn't take uints
 		static int nThreads = 1;
-		static int samplesPerPixel = 10;
-		static int maxRayDepth = 5;
+		static int samplesPerPixel = 16;
+		static int maxRayDepth = 10;
 
 
 		const char* stratCopy[] = { "Line" , "Quad" };
@@ -258,8 +258,9 @@ inline void Gui::menu()
 
 				m_renderingThread = std::thread{ &Gui::start_render, this, nThreads };
 			}
-			ImGui::SameLine(); if (ImGui::Button("PAUSE")) { m_renderer->m_state = Renderer::RenderState::Pause; };
-			ImGui::SameLine(); if (ImGui::Button("ABORT")) { m_renderer->m_state = Renderer::RenderState::Stop;  };
+			// TODO: Disable when Ready. Swap pause for restart on pause.
+			ImGui::SameLine(); if (ImGui::Button("PAUSE")) { m_renderer->pause(); };
+			ImGui::SameLine(); if (ImGui::Button("ABORT")) { m_renderer->stop(); };
 		}
 		ImGui::End();
 	}

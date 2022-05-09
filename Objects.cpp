@@ -4,7 +4,7 @@
 template <class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template <class... Ts> overload(Ts...)->overload<Ts...>;
 
-float Hitableobject::fast_hit(const Ray& r, float tMin, float tMax)
+float Hitableobject::fast_hit(const Ray& r, float tMin, float tMax) const
 {
 	return std::visit(
 		overload{
@@ -13,7 +13,7 @@ float Hitableobject::fast_hit(const Ray& r, float tMin, float tMax)
 		m_shape);
 }
 
-Hit Hitableobject::compute_hit(const Ray& r, float t)
+Hit Hitableobject::compute_hit(const Ray& r, float t) const 
 {
 	std::optional<Hit> empty_result{};
 
@@ -24,7 +24,7 @@ Hit Hitableobject::compute_hit(const Ray& r, float t)
 		m_shape);
 }
 
-std::optional<Hit> Hitableobject::hit(const Ray& r, float tMin, float tMax)
+std::optional<Hit> Hitableobject::hit(const Ray& r, float tMin, float tMax) const
 {
 	return std::visit(
 		overload{
@@ -49,16 +49,16 @@ void Objects::add(const Shape& shape, const Material& material)
 	m_objects.emplace_back(shape, matIndex);
 }
 
-HitResult Objects::hit(const Ray& r, float tMin, float tMax)
+HitResult Objects::hit(const Ray& r, float tMin, float tMax) const
 {
 	HitResult emptyResult{};
 
 	float closest = tMax;
-	Hitableobject* closestObject = nullptr;
+	const Hitableobject* closestObject = nullptr;
 
-	for (auto& object : m_objects)
+	for (const auto& object : m_objects)
 	{
-		if (float tmp = object.fast_hit(r, tMin, closest); tmp < std::numeric_limits<float>::max())
+		if (const float tmp = object.fast_hit(r, tMin, closest); tmp < std::numeric_limits<float>::max())
 		{
 			closestObject = &object;
 			closest = tmp;

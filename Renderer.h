@@ -52,6 +52,7 @@ public:
 
 	void start(uint32_t n_threads);
 	void stop();
+	void pause();
 
 private:
 	ImVec2 m_viewPort{ 0,0 };
@@ -59,9 +60,11 @@ private:
 	// Copy of the buffer in Gui.
 	std::vector<uint32_t> m_imageBuffer;
 
-	uint32_t m_samplesPerPixel = 10;
-	uint32_t m_maxRayDepth = 5;
-	uint32_t m_nThreads = 0; // will throw error if > 0!
+	uint32_t m_samplesPerPixel = 0;
+	uint32_t m_maxRayDepth = 0;
+	uint32_t m_nThreads = 0;
+
+	bool m_pause = false;
 
 	std::mt19937 m_rng{};
 	std::uniform_real_distribution<float> m_unifDist{ 0.0f, 1.0f };
@@ -79,5 +82,5 @@ private:
 	glm::vec3 shoot_ray(const Ray& ray, uint32_t depth);
 	void write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm::vec3 pixelColor);
 
-	float aspect_ratio() { return (static_cast<float>(m_viewPort.x) / static_cast<float>(m_viewPort.y)); };
+	float aspect_ratio() const { return (static_cast<float>(m_viewPort.x) / static_cast<float>(m_viewPort.y)); };
 };

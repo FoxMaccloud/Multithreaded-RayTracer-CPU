@@ -35,7 +35,7 @@ namespace Materials
 	public:
 		Metal(glm::vec3 ratio, float softness);
 
-		std::optional<Scattering> scatter(const Ray& rIn, Hit& rec);
+		std::optional<Scattering> scatter(const Ray& rIn, Hit& rec) const;
 
 
 	private:

@@ -16,10 +16,10 @@ public:
 	Hitableobject(Shape shape, const size_t materialIndex) : m_shape{ shape }, m_materialIndex{ materialIndex } {};
 	virtual ~Hitableobject() = default;
 
-	size_t material_index() { return m_materialIndex; };
-	float fast_hit(const Ray& r, float tMin, float tMax);
-	Hit compute_hit(const Ray& r, float t);
-	std::optional<Hit> hit(const Ray& r, float tMin, float tMax);
+	[[nodiscard]] size_t material_index() const { return m_materialIndex; };
+	[[nodiscard]] float fast_hit(const Ray& r, float tMin, float tMax) const;
+	[[nodiscard]] Hit compute_hit(const Ray& r, float t) const;
+	[[nodiscard]] std::optional<Hit> hit(const Ray& r, float tMin, float tMax) const;
 
 private:
 	Shape m_shape;
@@ -37,7 +37,7 @@ public:
 	void clear_objects() { m_objects.clear(); };
 	void add(const Shape& shape, const Material& material);
 
-	HitResult hit(const Ray& r, float tMin, float tMax);
+	[[nodiscard]] HitResult hit(const Ray& r, float tMin, float tMax) const;
 private:
 
 	std::vector<Hitableobject> m_objects;

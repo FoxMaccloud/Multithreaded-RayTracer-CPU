@@ -120,6 +120,20 @@ void Renderer::start(uint32_t n_threads)
 
 void Renderer::stop()
 {
+	m_state = RenderState::Stop;
+	m_threadpool->emergency_stop();
+	m_threadpool.reset();
+	m_state = RenderState::Ready;
+}
+
+void Renderer::pause()
+{
+	m_pause = !m_pause;
+	m_threadpool->pause(m_pause);
+	if (m_pause)
+		m_state = RenderState::Pause;
+	else
+		m_state = RenderState::Running;
 }
 
 glm::vec3 Renderer::shoot_ray(const Ray& ray, uint32_t depth)
@@ -127,12 +141,12 @@ glm::vec3 Renderer::shoot_ray(const Ray& ray, uint32_t depth)
 	if (depth == 0)
 		return glm::vec3(0,0,0);
 
-	if (const auto& [hitRecord, scatterResult] = m_scene.hit(ray, 0.001f, infinity); hitRecord)
+	if (const auto& [Hit, Scattering] = m_scene.hit(ray, 0.001f, infinity); Hit)
 	{
-		const auto& [p, normal, t, front_face] = hitRecord.value();
-		if (scatterResult)
+		const auto& [p, normal, t, front] = Hit.value();
+		if (Scattering)
 		{
-			const auto& [attenuation, scattered] = scatterResult.value();
+			const auto& [attenuation, scattered] = Scattering.value();
 			return attenuation * shoot_ray(scattered, depth - 1);
 		}
 		return glm::vec3{ 0,0,0 };
@@ -143,7 +157,6 @@ glm::vec3 Renderer::shoot_ray(const Ray& ray, uint32_t depth)
 
 	float t = 0.5f * (ray.direction.y + 1.0f);
 	return (1.0f - t) * white + t * azure;
-	return glm::vec3(0, 0, 0);
 }
 
 void Renderer::write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm::vec3 pixelColor)
