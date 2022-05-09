@@ -12,7 +12,7 @@ struct Scattering
 	Ray ray{};
 };
 
-struct Hit
+struct HitRecord
 {
 	float t;
 	glm::vec3 p;
@@ -35,7 +35,7 @@ namespace Materials
 	public:
 		Metal(glm::vec3 ratio, float softness);
 
-		std::optional<Scattering> scatter(const Ray& rIn, Hit& rec) const;
+		[[nodiscard]] std::optional<Scattering> scatter(const Ray& rIn, HitRecord& rec) const;
 
 
 	private:

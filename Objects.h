@@ -9,7 +9,7 @@
 #include "Shapes.h"
 
 
-using HitResult = std::pair<std::optional<Hit>, std::optional<Scattering>>;
+using HitResult = std::pair<std::optional<HitRecord>, std::optional<Scattering>>;
 class Hitableobject
 {
 public:
@@ -18,8 +18,8 @@ public:
 
 	[[nodiscard]] size_t material_index() const { return m_materialIndex; };
 	[[nodiscard]] float fast_hit(const Ray& r, float tMin, float tMax) const;
-	[[nodiscard]] Hit compute_hit(const Ray& r, float t) const;
-	[[nodiscard]] std::optional<Hit> hit(const Ray& r, float tMin, float tMax) const;
+	[[nodiscard]] HitRecord compute_hit(const Ray& r, float t) const;
+	[[nodiscard]] std::optional<HitRecord> hit(const Ray& r, float tMin, float tMax) const;
 
 private:
 	Shape m_shape;

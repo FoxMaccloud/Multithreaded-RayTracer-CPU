@@ -131,6 +131,7 @@ inline void Gui::menu()
 
 		if (ImGui::BeginMenuBar())
 		{
+			// File -> Save buffer as .PPM file
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("New")) {}

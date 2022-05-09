@@ -24,9 +24,9 @@ namespace Shapes {
 		return root;
 	}
 
-	Hit Sphere::compute_hit(const Ray& r, const float t) const
+	HitRecord Sphere::compute_hit(const Ray& r, const float t) const
 	{
-		Hit result{};
+		HitRecord result{};
 		result.t = t;
 		result.p = r.at(result.t);
 		glm::vec3 outNormal = glm::normalize(result.p - m_center);
@@ -35,9 +35,9 @@ namespace Shapes {
 		return result;
 	}
 
-	std::optional<Hit> Sphere::hit(const Ray& r, const float tMin, const float tMax) const
+	std::optional<HitRecord> Sphere::hit(const Ray& r, const float tMin, const float tMax) const
 	{
-		std::optional<Hit> emptyResult{};
+		std::optional<HitRecord> emptyResult{};
 
 		auto t = fast_hit(r, tMin, tMax);
 		if (t < std::numeric_limits<float>::max())

@@ -13,9 +13,9 @@ float Hitableobject::fast_hit(const Ray& r, float tMin, float tMax) const
 		m_shape);
 }
 
-Hit Hitableobject::compute_hit(const Ray& r, float t) const 
+HitRecord Hitableobject::compute_hit(const Ray& r, float t) const 
 {
-	std::optional<Hit> empty_result{};
+	std::optional<HitRecord> empty_result{};
 
 	return std::visit(
 		overload{
@@ -24,7 +24,7 @@ Hit Hitableobject::compute_hit(const Ray& r, float t) const
 		m_shape);
 }
 
-std::optional<Hit> Hitableobject::hit(const Ray& r, float tMin, float tMax) const
+std::optional<HitRecord> Hitableobject::hit(const Ray& r, float tMin, float tMax) const
 {
 	return std::visit(
 		overload{

@@ -141,13 +141,13 @@ glm::vec3 Renderer::shoot_ray(const Ray& ray, uint32_t depth)
 	if (depth == 0)
 		return glm::vec3(0,0,0);
 
-	if (const auto& [Hit, Scattering] = m_scene.hit(ray, 0.001f, infinity); Hit)
+	if (const auto& [HitRecord, Scattering] = m_scene.hit(ray, 0.001f, infinity); HitRecord)
 	{
-		const auto& [p, normal, t, front] = Hit.value();
+		const auto& [p, normal, t, front] = HitRecord.value();
 		if (Scattering)
 		{
-			const auto& [attenuation, scattered] = Scattering.value();
-			return attenuation * shoot_ray(scattered, depth - 1);
+			const auto& [fading, scattered] = Scattering.value();
+			return fading * shoot_ray(scattered, depth - 1);
 		}
 		return glm::vec3{ 0,0,0 };
 	}
