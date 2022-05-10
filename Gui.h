@@ -6,11 +6,12 @@
 #include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
+#include "magic_enum.hpp"
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#define WINDOW_TITLE "temp window title"
+#define WINDOW_TITLE "CPU Benchmark"
 
 #include "Renderer.h"
 #include "Image.h"
@@ -32,17 +33,16 @@ private:
 
 	// Image Buffer to present the image
 	std::vector<uint32_t> m_imageBuffer;
+	std::vector<Renderer::Results> m_results;
 
 	// Our raytracer doing work
 	std::unique_ptr<Renderer> m_renderer;
 	std::thread m_renderingThread;
-	void start_render(int nThreads);
 
 	void resize_image(ImVec2 newSize);
 	void create_image_buffer();
 	void setup_main_window();
 
-	bool m_windowResize = false;
 	void enable_window_resize();
 	void disable_window_resize();
 

@@ -7,6 +7,8 @@
 #include "Camera.h"
 #include "Objects.h"
 #include <random>
+#include <chrono>
+#include <string>
 
 class Renderer
 {
@@ -29,6 +31,16 @@ public:
 		test2
 	};
 
+	struct Results
+	{
+		uint32_t nThreads;
+		uint32_t samples;
+		uint32_t depth;
+		Strategy strat;
+		Scenes scene;
+		std::chrono::seconds time;
+	};
+
 	struct Quad
 	{
 		Quad(glm::uvec2 min, glm::uvec2 max) : minCoo{ min }, maxCoo{ max }{};
@@ -44,13 +56,15 @@ public:
 
 
 	void set_image_size(float x, float y);
-	void set_new_buffer(std::vector<uint32_t>& buffer) { m_imageBuffer = buffer; }
-	void set_samples_per_pixel(uint32_t nSamples) { m_samplesPerPixel = nSamples; }
-	void set_max_ray_bounces(uint32_t nBounces) { m_maxRayDepth = nBounces; }
+	void set_new_buffer(std::vector<uint32_t>& buffer) { m_imageBuffer = &buffer; };
+	void set_results_buffer(std::vector<Renderer::Results>& buffer) { m_results = &buffer; };
+	void set_samples_per_pixel(uint32_t nSamples) { m_samplesPerPixel = nSamples; };
+	void set_max_ray_bounces(uint32_t nBounces) { m_maxRayDepth = nBounces; };
 	void set_nThreads(uint32_t nThreads) { m_nThreads = nThreads; };
 	void set_scene(Scenes scene) { m_selectedScene = scene; };
 
-	void start(uint32_t n_threads);
+	void render(uint32_t n_threads);
+	void start();
 	void stop();
 	void pause();
 
@@ -58,7 +72,9 @@ private:
 	ImVec2 m_viewPort{ 0,0 };
 
 	// Copy of the buffer in Gui.
-	std::vector<uint32_t> m_imageBuffer;
+	std::vector<uint32_t>* m_imageBuffer;
+	// Copy of results buffer
+	std::vector<Renderer::Results>* m_results;
 
 	uint32_t m_samplesPerPixel = 0;
 	uint32_t m_maxRayDepth = 0;
@@ -69,6 +85,7 @@ private:
 	std::mt19937 m_rng{};
 	std::uniform_real_distribution<float> m_unifDist{ 0.0f, 1.0f };
 
+	std::thread m_workThread;
 	std::unique_ptr<ThreadPool> m_threadpool;
 
 	Scenes m_selectedScene;

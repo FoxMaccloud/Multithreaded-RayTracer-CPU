@@ -8,12 +8,11 @@ Gui::Gui() : m_renderer{std::make_unique<Renderer>()}
 	setup_main_window();
 	m_renderer->set_image_size(m_windowSize.x, m_windowSize.y);
 	m_renderer->set_new_buffer(m_imageBuffer);
+	m_renderer->set_results_buffer(m_results);
 }
 
 Gui::~Gui()
 {
-	m_renderingThread.join();
-
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -96,11 +95,6 @@ void Gui::disable_window_resize()
 {
 	// Disable when rendering
 	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
-}
-
-void Gui::start_render(int nThreads)
-{
-	m_renderer->start(nThreads);
 }
 
 inline void Gui::menu()
@@ -227,41 +221,77 @@ inline void Gui::menu()
 
 			if (ImGui::Button("START"))
 			{
-				m_renderer->set_samples_per_pixel(samplesPerPixel);
-				m_renderer->set_max_ray_bounces(maxRayDepth);
-				m_renderer->set_nThreads(nThreads);
-
-				switch (currentIndexStrat)
+				if (m_renderer->m_state == Renderer::RenderState::Ready)
 				{
-				case (0):
-					m_renderer->m_strat = Renderer::Strategy::Line;
-					break;
-				case(1):
-					m_renderer->m_strat = Renderer::Strategy::Quad;
-					break;
-				default:
-					throw std::runtime_error("Error: Invalid strategy!");
-					break;
-				}
+					create_image_buffer();
+					m_renderer->set_samples_per_pixel(samplesPerPixel);
+					m_renderer->set_max_ray_bounces(maxRayDepth);
+					m_renderer->set_nThreads(nThreads);
 
-				switch (currentIndexScene)
-				{
-				case (0):
-					m_renderer->set_scene(Renderer::Scenes::test1);
-					break;
-				case(1):
-					m_renderer->set_scene(Renderer::Scenes::test2);
-					break;
-				default:
-					throw std::runtime_error("Error: Invalid Scene!");
-					break;
-				}
+					switch (currentIndexStrat)
+					{
+					case (0):
+						m_renderer->m_strat = Renderer::Strategy::Line;
+						break;
+					case(1):
+						m_renderer->m_strat = Renderer::Strategy::Quad;
+						break;
+					default:
+						throw std::runtime_error("Error: Invalid strategy!");
+						break;
+					}
 
-				m_renderingThread = std::thread{ &Gui::start_render, this, nThreads };
+					switch (currentIndexScene)
+					{
+					case (0):
+						m_renderer->set_scene(Renderer::Scenes::test1);
+						break;
+					case(1):
+						m_renderer->set_scene(Renderer::Scenes::test2);
+						break;
+					default:
+						throw std::runtime_error("Error: Invalid Scene!");
+						break;
+					}
+					m_renderer->set_nThreads(nThreads);
+					m_renderer->start();
+				}
 			}
 			// TODO: Disable when Ready. Swap pause for restart on pause.
 			ImGui::SameLine(); if (ImGui::Button("PAUSE")) { m_renderer->pause(); };
 			ImGui::SameLine(); if (ImGui::Button("ABORT")) { m_renderer->stop(); };
+
+			
+
+			if (ImGui::BeginTable("##Results", 6, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInner | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY))
+			{
+				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+				ImGui::TableSetupColumn("Threads", ImGuiTableColumnFlags_None);
+				ImGui::TableSetupColumn("Samples", ImGuiTableColumnFlags_None);
+				ImGui::TableSetupColumn("Depth", ImGuiTableColumnFlags_None);
+				ImGui::TableSetupColumn("Strat", ImGuiTableColumnFlags_None);
+				ImGui::TableSetupColumn("Scene", ImGuiTableColumnFlags_None);
+				ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_None);
+				ImGui::TableHeadersRow();
+
+				for (int items = 0; items < m_results.size(); items++)
+				{
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::TextWrapped(std::to_string(m_results[items].nThreads).c_str());
+					ImGui::TableSetColumnIndex(1);
+					ImGui::TextWrapped(std::to_string(m_results[items].samples).c_str());
+					ImGui::TableSetColumnIndex(2);
+					ImGui::TextWrapped(std::to_string(m_results[items].depth).c_str());
+					ImGui::TableSetColumnIndex(3);
+					ImGui::TextWrapped(magic_enum::enum_name(m_results[items].strat).data());
+					ImGui::TableSetColumnIndex(4);
+					ImGui::TextWrapped(magic_enum::enum_name(m_results[items].scene).data());
+					ImGui::TableSetColumnIndex(5);
+					ImGui::TextWrapped((std::to_string(m_results[items].time.count()) + " seconds").c_str());
+				}
+				ImGui::EndTable();
+			}
 		}
 		ImGui::End();
 	}
@@ -294,6 +324,7 @@ void Gui::run()
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_viewport.x, m_viewport.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_imageBuffer.data()));
 		ImTextureID m_imageTexture = (ImTextureID)(uintptr_t)texture;
 
 		if (m_imageTexture)

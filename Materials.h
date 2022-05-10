@@ -35,8 +35,7 @@ namespace Materials
 	public:
 		Metal(glm::vec3 ratio, float softness);
 
-		[[nodiscard]] std::optional<Scattering> scatter(const Ray& rIn, HitRecord& rec) const;
-
+		std::optional<Scattering> scatter(const Ray& rIn, HitRecord& rec) const;
 
 	private:
 		glm::vec3 m_ratio;
@@ -47,6 +46,14 @@ namespace Materials
 	{
 		return (lhs.m_ratio == rhs.m_ratio) && (lhs.m_softness && rhs.m_softness);
 	}
+}
+
+namespace Colors
+{
+	const glm::vec3 Brass{ 0.7, 0.5, 0.2 };
+	const glm::vec3 Copper{ 0.7, 0.4, 0.2 };
+	const glm::vec3 Steel{ 0.5, 0.5, 0.5 };
+	const glm::vec3 Gold{ 0.9, 0.7, 0.1 };
 }
 
 using Material = std::variant<Materials::Metal>;

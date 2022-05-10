@@ -23,6 +23,8 @@ Renderer::~Renderer()
 	default:
 		break;
 	}
+	if (m_workThread.joinable())
+		m_workThread.join();
 }
 
 void Renderer::set_image_size(float x, float y)
@@ -46,9 +48,9 @@ std::vector<Renderer::Quad> Renderer::split_image(uint32_t quadSize)
 	return result;
 }
 
-void Renderer::start(uint32_t n_threads)
+void Renderer::render(uint32_t n_threads)
 {
-	m_state = RenderState::Running;
+	auto startTime = std::chrono::system_clock::now();
 
 	set_selected_scene(m_selectedScene);
 
@@ -114,16 +116,41 @@ void Renderer::start(uint32_t n_threads)
 	}
 	std::for_each(begin(futures), end(futures), [](auto& future) { future.wait(); });
 
-	m_threadpool.reset();
+	auto stopTime = std::chrono::system_clock::now();
+	auto time = std::chrono::duration_cast<std::chrono::seconds>(stopTime - startTime);
+
+	m_results->push_back(Results{ m_nThreads, m_samplesPerPixel, m_maxRayDepth, m_strat, m_selectedScene, time });
+
 	m_state = RenderState::Ready;
+
+	m_threadpool.reset();
+}
+
+void Renderer::start()
+{
+	if (m_workThread.joinable())
+	{
+		switch (m_state)
+		{
+		case RenderState::Ready:
+		case RenderState::Stop:
+			m_workThread.join();
+			break;
+		default:
+			break;
+		}
+	}
+	m_state = RenderState::Running;
+
+	m_workThread = std::thread{ &Renderer::render, this, m_nThreads };
 }
 
 void Renderer::stop()
 {
 	m_state = RenderState::Stop;
-	m_threadpool->emergency_stop();
-	m_threadpool.reset();
-	m_state = RenderState::Ready;
+	//m_threadpool->emergency_stop();
+	//m_threadpool.reset();
+	//m_state = RenderState::Ready;
 }
 
 void Renderer::pause()
@@ -167,11 +194,17 @@ void Renderer::write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm:
 
 	uint32_t index = (pixelCords.x + (pixelCords.y * m_viewPort.x));
 
-	uint32_t w_color = 0xFF000000;
+	uint8_t w_color[4];
 
-	w_color |= static_cast<uint32_t>(255 * pixelColor.x) << 16;
-	w_color |= static_cast<uint32_t>(255 * pixelColor.y) << 8;
-	w_color |= static_cast<uint32_t>(255 * pixelColor.z) << 0;
+	w_color[0] = static_cast<uint8_t>(255 * pixelColor.x);
+	w_color[1] = static_cast<uint8_t>(255 * pixelColor.y);
+	w_color[2] = static_cast<uint8_t>(255 * pixelColor.z);
+	w_color[3] = 0xFF;
 
-	m_imageBuffer[index] = w_color;
+	//w_color |= static_cast<uint8_t>(255 * 1) << 24;
+	//w_color |= static_cast<uint8_t>(255 * pixelColor.x) << 16;
+	//w_color |= static_cast<uint8_t>(255 * pixelColor.y) << 8;
+	//w_color |= static_cast<uint8_t>(255 * pixelColor.z) << 0;
+
+	(*m_imageBuffer)[index] = *(uint32_t*)(&w_color);
 }

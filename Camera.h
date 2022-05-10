@@ -5,14 +5,14 @@
 class Camera
 {
 public:
-	struct CameraOrientation
+	struct ViewMatrix
 	{
 		glm::vec3 lookingFrom;
 		glm::vec3 lookingAt;
 		glm::vec3 vUp;
 	};
 
-	Camera(CameraOrientation orientation, float fov, float aspectRatio, float aperture, float focusDist);
+	Camera(ViewMatrix viewmatrix, float fov, float aspectRatio, float aperture, float focusDist);
 	//~Camera();
 
 	Ray new_ray(float s, float t) const;

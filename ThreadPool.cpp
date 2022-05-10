@@ -18,8 +18,10 @@ ThreadPool::ThreadPool(int nThreads)
 
 ThreadPool::~ThreadPool()
 {
-	std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
-	m_stopProcessing = true;
+	{
+		std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
+		m_stopProcessing = true;
+	}
 	m_poolNotifier.notify_all();
 	for (auto& taskThread : m_threads)
 	{

@@ -135,12 +135,15 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\FoxMaccloud\source\repos\OpenGL Image2\OpenGL Image2\ImGui\libs\GL\gl3w\include;C:\Users\FoxMaccloud\source\repos\OpenGL Image2\OpenGL Image2\ImGui\libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\FoxMaccloud\source\repos\OpenGL Image2\OpenGL Image2\ImGui\libs\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -167,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="magic_enum.hpp" />
     <ClInclude Include="Materials.h" />
     <ClInclude Include="Objects.h" />
     <ClInclude Include="Image.h" />

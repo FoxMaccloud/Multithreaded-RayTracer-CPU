@@ -149,5 +149,8 @@
     <ClInclude Include="IndexBuffer.h">
       <Filter>Resource Files\OpenGL Stuff</Filter>
     </ClInclude>
+    <ClInclude Include="magic_enum.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

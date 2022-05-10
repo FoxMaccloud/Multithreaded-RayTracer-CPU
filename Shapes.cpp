@@ -4,15 +4,15 @@
 namespace Shapes {
 	float Sphere::fast_hit(const Ray& r, const float tMin, const float tMax) const
 	{
-		glm::vec3 oc = r.origin - m_center;
-		float b = glm::dot(oc, r.direction);
-		float disc = b * b - glm::dot(oc, oc) + (m_radius * m_radius);
+		const glm::vec3 oc = r.origin - m_center;
+		const float b = glm::dot(oc, r.direction);
+		const float disc = b * b - glm::dot(oc, oc) + (m_radius * m_radius);
 		if (disc < 0)
 		{
 			return std::numeric_limits<float>::max();
 		}
 		float sqrtDisc = std::sqrt(disc);
-		float root = -b + sqrtDisc;
+		float root = -b - sqrtDisc;
 		if (root < tMin || tMax < root)
 		{
 			root = -b + sqrtDisc;
