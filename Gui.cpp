@@ -164,7 +164,7 @@ inline void Gui::menu()
 		static int currentIndexStrat = 0;
 		const char* showValueStrat = stratCopy[currentIndexStrat];
 
-		const char* scenes[] = { "test1", "test2" };
+		const char* scenes[] = { "threeBalls", "test2", "random"};
 		static int currentIndexScene = 0;
 		const char* showValueScenes = scenes[currentIndexScene];
 
@@ -244,10 +244,13 @@ inline void Gui::menu()
 					switch (currentIndexScene)
 					{
 					case (0):
-						m_renderer->set_scene(Renderer::Scenes::test1);
+						m_renderer->set_scene(Renderer::Scenes::threeBalls);
 						break;
 					case(1):
 						m_renderer->set_scene(Renderer::Scenes::test2);
+						break;
+					case(2):
+						m_renderer->set_scene(Renderer::Scenes::random);
 						break;
 					default:
 						throw std::runtime_error("Error: Invalid Scene!");
@@ -348,6 +351,7 @@ void Gui::run()
 
 		// Delete the texture so we don't leak memory!
 		GLCall(glDeleteTextures(1, &texture));
+		Sleep(1);
 	}
 }
 

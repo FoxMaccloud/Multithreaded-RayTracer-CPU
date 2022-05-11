@@ -58,11 +58,10 @@ void Renderer::render(uint32_t n_threads)
 	
 	auto renderLine = [this](const uint32_t lineCord)
 	{
-		if (m_state == RenderState::Stop)
-			return;
-
 		for (uint32_t x = 0; x < m_viewPort.x; ++x)
 		{
+			if (m_state == RenderState::Stop)
+				return;
 			const auto pixelCord = glm::uvec2{ x, lineCord };
 			glm::vec3 pixelColor{ 0,0,0 };
 			for (uint32_t sample = 0; sample < m_samplesPerPixel; ++sample)
@@ -78,10 +77,9 @@ void Renderer::render(uint32_t n_threads)
 
 	auto renderQuad = [this](const glm::uvec2 minCoo, const glm::uvec2 maxCoo)
 	{
-		if (m_state == RenderState::Stop)
-			return;
-
 		for (uint32_t j = maxCoo.y; j > minCoo.y; --j) {
+			if (m_state == RenderState::Stop)
+				return;
 			for (uint32_t i = minCoo.x; i < maxCoo.x; ++i) {
 				glm::vec3 pixelColor{ 0,0,0 };
 				const auto pixelCord = glm::uvec2{ i, j - 1 };
@@ -102,7 +100,7 @@ void Renderer::render(uint32_t n_threads)
 	{
 	case Strategy::Line:
 		// Render per-line
-		for (int line = m_viewPort.y - 1; line >= 0; --line)
+		for (int line = 0; line <= m_viewPort.y - 1; ++line)
 			futures.push_back(m_threadpool->add_task(renderLine, line));
 		break;
 	case Strategy::Quad:
@@ -121,8 +119,9 @@ void Renderer::render(uint32_t n_threads)
 
 	m_results->push_back(Results{ m_nThreads, m_samplesPerPixel, m_maxRayDepth, m_strat, m_selectedScene, time });
 
-	m_state = RenderState::Ready;
+	m_scene.clear_objects();
 
+	m_state = RenderState::Ready;
 	m_threadpool.reset();
 }
 

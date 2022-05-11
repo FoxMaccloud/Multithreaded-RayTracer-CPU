@@ -27,8 +27,9 @@ public:
 	};
 	enum class Scenes
 	{
-		test1,
-		test2
+		threeBalls,
+		test2,
+		random
 	};
 
 	struct Results
@@ -53,7 +54,6 @@ public:
 
 	Renderer();
 	~Renderer();
-
 
 	void set_image_size(float x, float y);
 	void set_new_buffer(std::vector<uint32_t>& buffer) { m_imageBuffer = &buffer; };
@@ -84,7 +84,6 @@ private:
 
 	std::mt19937 m_rng{};
 	std::uniform_real_distribution<float> m_unifDist{ 0.0f, 1.0f };
-
 	std::thread m_workThread;
 	std::unique_ptr<ThreadPool> m_threadpool;
 
@@ -94,7 +93,7 @@ private:
 
 	std::unique_ptr<Camera> m_camera;
 
-	std::vector<Quad> split_image(uint32_t quadSize = 150); // Add quadSize to settings?
+	std::vector<Quad> split_image(uint32_t quadSize = 120); // Add quadSize to settings?
 
 	glm::vec3 shoot_ray(const Ray& ray, uint32_t depth);
 	void write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm::vec3 pixelColor);
