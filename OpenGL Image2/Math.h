@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 
+constexpr float maxFloat = std::numeric_limits<float>::max();
 constexpr float infinity = std::numeric_limits<float>::infinity();
 constexpr float pi = 3.1415926535897932384626433832795f;
 

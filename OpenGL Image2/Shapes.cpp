@@ -9,7 +9,7 @@ namespace Shapes {
 		const float disc = b * b - glm::dot(oc, oc) + (m_radius * m_radius);
 		if (disc < 0)
 		{
-			return std::numeric_limits<float>::max();
+			return maxFloat;
 		}
 		float sqrtDisc = std::sqrt(disc);
 		float root = -b - sqrtDisc;
@@ -18,7 +18,7 @@ namespace Shapes {
 			root = -b + sqrtDisc;
 			if (root < tMin || tMax < root)
 			{
-				return std::numeric_limits<float>::max();
+				return maxFloat;
 			}
 		}
 		return root;

@@ -66,8 +66,8 @@ void Renderer::render(uint32_t n_threads)
 			glm::vec3 pixelColor{ 0,0,0 };
 			for (uint32_t sample = 0; sample < m_samplesPerPixel; ++sample)
 			{
-				const auto u = (static_cast<float>(pixelCord.x) + m_unifDist(m_rng)) / (m_viewPort.x - 1);
-				const auto v = (static_cast<float>(pixelCord.y) + m_unifDist(m_rng)) / (m_viewPort.y - 1);
+				const auto u = (static_cast<float>(pixelCord.x)) / (m_viewPort.x - 1);
+				const auto v = (static_cast<float>(pixelCord.y)) / (m_viewPort.y - 1);
 				Ray r = m_camera->new_ray(u, v);
 				pixelColor += shoot_ray(r, m_maxRayDepth);
 			}
@@ -84,8 +84,8 @@ void Renderer::render(uint32_t n_threads)
 				glm::vec3 pixelColor{ 0,0,0 };
 				const auto pixelCord = glm::uvec2{ i, j - 1 };
 				for (uint32_t sample = 0; sample < m_samplesPerPixel; ++sample) {
-					const auto u = (static_cast<float>(pixelCord.x) + m_unifDist(m_rng)) / (m_viewPort.x - 1);
-					const auto v = (static_cast<float>(pixelCord.y) + m_unifDist(m_rng)) / (m_viewPort.y - 1);
+					const auto u = (static_cast<float>(pixelCord.x)) / (m_viewPort.x - 1);
+					const auto v = (static_cast<float>(pixelCord.y)) / (m_viewPort.y - 1);
 					Ray r = m_camera->new_ray(u, v);
 					pixelColor += shoot_ray(r, m_maxRayDepth);
 				}

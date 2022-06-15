@@ -1,8 +1,5 @@
 #include "Image.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 void GLClearError()
 {
 	while (glGetError() != GL_NO_ERROR);
