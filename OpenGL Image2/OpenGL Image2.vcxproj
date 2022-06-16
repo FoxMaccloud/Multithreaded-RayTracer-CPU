@@ -171,6 +171,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="glm\glm\gtc\epsilon.hpp" />
+    <ClInclude Include="glm\glm\gtc\random.hpp" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="magic_enum.hpp" />
     <ClInclude Include="Materials.h" />

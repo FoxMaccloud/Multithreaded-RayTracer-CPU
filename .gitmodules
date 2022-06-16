@@ -1,0 +1,3 @@
+[submodule "OpenGL Image2/glm"]
+	path = OpenGL Image2/glm
+	url = git@github.com:g-truc/glm.git

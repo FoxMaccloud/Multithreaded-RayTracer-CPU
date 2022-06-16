@@ -149,5 +149,11 @@
     <ClInclude Include="magic_enum.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="glm\glm\gtc\epsilon.hpp">
+      <Filter>Resource Files\glm</Filter>
+    </ClInclude>
+    <ClInclude Include="glm\glm\gtc\random.hpp">
+      <Filter>Resource Files\glm</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
