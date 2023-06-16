@@ -1,6 +1,5 @@
-#include "IndexBuffer.h"
-
-#include "Image.h"
+#include "IndexBuffer.hpp"
+#include "Image.hpp"
 
 IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
 	: m_count(count)

@@ -13,13 +13,16 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files\ImGui">
-      <UniqueIdentifier>{1067dfc4-b9e4-4ced-b9bc-624c10d9c02d}</UniqueIdentifier>
+    <Filter Include="vendor">
+      <UniqueIdentifier>{fd8730ea-0646-40b5-864f-67be4f05f99d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\glm">
+    <Filter Include="vendor\glm">
       <UniqueIdentifier>{c5dd189b-0d99-4de2-8ef5-9846c2777a0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\OpenGL Stuff">
+    <Filter Include="vendor\ImGui">
+      <UniqueIdentifier>{1067dfc4-b9e4-4ced-b9bc-624c10d9c02d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL Stuff">
       <UniqueIdentifier>{9ca814c1-0fe0-4360-8d3e-2c59522dbfed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -31,25 +34,25 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui.cpp">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_draw.cpp">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_impl_glfw.cpp">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_impl_opengl3.cpp">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_tables.cpp">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_widgets.cpp">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\libs\GL\GL\gl3w.c">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
@@ -64,10 +67,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
-      <Filter>Resource Files\OpenGL Stuff</Filter>
+      <Filter>OpenGL Stuff</Filter>
     </ClCompile>
     <ClCompile Include="IndexBuffer.cpp">
-      <Filter>Resource Files\OpenGL Stuff</Filter>
+      <Filter>OpenGL Stuff</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
       <Filter>Source Files</Filter>
@@ -83,77 +86,71 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Gui.h">
+    <ClInclude Include="Gui.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imconfig.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imgui.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imgui_impl_glfw.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imgui_impl_opengl3.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imgui_impl_opengl3_loader.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imgui_internal.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imstb_rectpack.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imstb_textedit.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\imstb_truetype.h">
-      <Filter>Resource Files\ImGui</Filter>
+      <Filter>vendor\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
+    <ClInclude Include="Renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="Camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Math.h">
+    <ClInclude Include="Math.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Ray.h">
+    <ClInclude Include="Ray.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>Resource Files\OpenGL Stuff</Filter>
+    <ClInclude Include="VertexBuffer.hpp">
+      <Filter>OpenGL Stuff</Filter>
     </ClInclude>
-    <ClInclude Include="Image.h">
+    <ClInclude Include="Image.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Materials.h">
+    <ClInclude Include="Materials.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Objects.h">
+    <ClInclude Include="Objects.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shapes.h">
+    <ClInclude Include="Shapes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadPool.h">
+    <ClInclude Include="ThreadPool.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
-      <Filter>Resource Files\OpenGL Stuff</Filter>
+    <ClInclude Include="IndexBuffer.hpp">
+      <Filter>OpenGL Stuff</Filter>
     </ClInclude>
     <ClInclude Include="magic_enum.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\glm\gtc\epsilon.hpp">
-      <Filter>Resource Files\glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\glm\gtc\random.hpp">
-      <Filter>Resource Files\glm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

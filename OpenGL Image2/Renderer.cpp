@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "Renderer.hpp"
 
 
 Renderer::Renderer()
@@ -15,10 +15,10 @@ Renderer::~Renderer()
 		break;
 	case Renderer::RenderState::Running:
 		m_state = RenderState::Stop;
-		m_threadpool->emergency_stop();
+		m_threadpool->EmergencyStop();
 		break;
 	case Renderer::RenderState::Stop:
-		m_threadpool->emergency_stop();
+		m_threadpool->EmergencyStop();
 		break;
 	default:
 		break;
@@ -27,14 +27,13 @@ Renderer::~Renderer()
 		m_workThread.join();
 }
 
-void Renderer::set_image_size(float x, float y)
+void Renderer::SetImageSize(float x, float y)
 {
 	m_viewPort = { x, y };
 }
 
-std::vector<Renderer::Quad> Renderer::split_image(uint32_t quadSize)
+std::vector<Renderer::Quad> Renderer::SplitImage(uint32_t quadSize)
 {
-	glm::uvec2 u_viewPort{ m_viewPort.x, m_viewPort.y };
 	std::vector<Quad> result;
 	uint32_t numX = static_cast<uint32_t>(std::ceil(m_viewPort.x / static_cast<float>(quadSize)));
 	uint32_t numY = static_cast<uint32_t>(std::ceil(m_viewPort.y / static_cast<float>(quadSize)));
@@ -42,17 +41,17 @@ std::vector<Renderer::Quad> Renderer::split_image(uint32_t quadSize)
 	{
 		for (uint32_t x = 0; x < numX; ++x)
 		{
-			result.emplace_back(glm::uvec2{ x * quadSize, (y - 1) * quadSize }, glm::min(glm::uvec2{ (x + 1) * quadSize, y * quadSize }, u_viewPort));
+			result.emplace_back(glm::uvec2{ x * quadSize, (y - 1) * quadSize }, glm::min(glm::uvec2{ (x + 1) * quadSize, y * quadSize }, glm::uvec2{ m_viewPort.x, m_viewPort.y }));
 		}
 	}
 	return result;
 }
 
-void Renderer::render(uint32_t n_threads)
+void Renderer::Render(uint32_t n_threads)
 {
 	auto startTime = std::chrono::system_clock::now();
 
-	set_selected_scene(m_selectedScene);
+	SetSelectedScene(m_selectedScene);
 
 	m_threadpool = std::make_unique<ThreadPool>(n_threads);
 	
@@ -68,10 +67,10 @@ void Renderer::render(uint32_t n_threads)
 			{
 				const auto u = (static_cast<float>(pixelCord.x)) / (m_viewPort.x - 1);
 				const auto v = (static_cast<float>(pixelCord.y)) / (m_viewPort.y - 1);
-				Ray r = m_camera->new_ray(u, v);
-				pixelColor += shoot_ray(r, m_maxRayDepth);
+				Ray r = m_camera->NewRay(u, v);
+				pixelColor += ShootRay(r, m_maxRayDepth);
 			}
-			write_pix_to_buffer(pixelCord, m_samplesPerPixel, pixelColor);
+			WritePixelToBuffer(pixelCord, m_samplesPerPixel, pixelColor);
 		}
 	};
 
@@ -86,10 +85,10 @@ void Renderer::render(uint32_t n_threads)
 				for (uint32_t sample = 0; sample < m_samplesPerPixel; ++sample) {
 					const auto u = (static_cast<float>(pixelCord.x)) / (m_viewPort.x - 1);
 					const auto v = (static_cast<float>(pixelCord.y)) / (m_viewPort.y - 1);
-					Ray r = m_camera->new_ray(u, v);
-					pixelColor += shoot_ray(r, m_maxRayDepth);
+					Ray r = m_camera->NewRay(u, v);
+					pixelColor += ShootRay(r, m_maxRayDepth);
 				}
-				write_pix_to_buffer(pixelCord, m_samplesPerPixel, pixelColor);
+				WritePixelToBuffer(pixelCord, m_samplesPerPixel, pixelColor);
 			}
 		}
 	};
@@ -101,12 +100,12 @@ void Renderer::render(uint32_t n_threads)
 	case Strategy::Line:
 		// Render per-line
 		for (int line = 0; line <= m_viewPort.y - 1; ++line)
-			futures.push_back(m_threadpool->add_task(renderLine, line));
+			futures.push_back(m_threadpool->AddTask(renderLine, line));
 		break;
 	case Strategy::Quad:
 		// Render per-quad
-		for (const auto& [minCoo, maxCoo] : split_image())
-			futures.push_back(m_threadpool->add_task(renderQuad, minCoo, maxCoo));
+		for (const auto& [minCoo, maxCoo] : SplitImage())
+			futures.push_back(m_threadpool->AddTask(renderQuad, minCoo, maxCoo));
 		break;
 	default:
 		throw std::runtime_error("ERROR: No strategy selected!");
@@ -119,13 +118,13 @@ void Renderer::render(uint32_t n_threads)
 
 	m_results->push_back(Results{ m_nThreads, m_samplesPerPixel, m_maxRayDepth, m_strat, m_selectedScene, time });
 
-	m_scene.clear_objects();
+	m_scene.ClearObjects();
 
 	m_state = RenderState::Ready;
 	m_threadpool.reset();
 }
 
-void Renderer::start()
+void Renderer::Start()
 {
 	if (m_workThread.joinable())
 	{
@@ -141,39 +140,39 @@ void Renderer::start()
 	}
 	m_state = RenderState::Running;
 
-	m_workThread = std::thread{ &Renderer::render, this, m_nThreads };
+	m_workThread = std::thread{ &Renderer::Render, this, m_nThreads };
 }
 
-void Renderer::stop()
+void Renderer::Stop()
 {
 	m_state = RenderState::Stop;
-	//m_threadpool->emergency_stop();
+	//m_threadpool->EmergencyStop();
 	//m_threadpool.reset();
 	//m_state = RenderState::Ready;
 }
 
-void Renderer::pause()
+void Renderer::Pause()
 {
 	m_pause = !m_pause;
-	m_threadpool->pause(m_pause);
+	m_threadpool->Pause(m_pause);
 	if (m_pause)
 		m_state = RenderState::Pause;
 	else
 		m_state = RenderState::Running;
 }
 
-glm::vec3 Renderer::shoot_ray(const Ray& ray, uint32_t depth)
+glm::vec3 Renderer::ShootRay(const Ray& ray, uint32_t depth)
 {
 	if (depth == 0)
 		return glm::vec3(0,0,0);
 
-	if (const auto& [HitRecord, Scattering] = m_scene.hit(ray, 0.001f, infinity); HitRecord)
+	if (const auto& [HitRecord, Scattering] = m_scene.Hit(ray, 0.001f, infinity); HitRecord)
 	{
 		const auto& [p, normal, t, front] = HitRecord.value();
 		if (Scattering)
 		{
 			const auto& [fading, scattered] = Scattering.value();
-			return fading * shoot_ray(scattered, depth - 1);
+			return fading * ShootRay(scattered, depth - 1);
 		}
 		return glm::vec3{ 0,0,0 };
 	}
@@ -185,7 +184,7 @@ glm::vec3 Renderer::shoot_ray(const Ray& ray, uint32_t depth)
 	return (1.0f - t) * white + t * azure;
 }
 
-void Renderer::write_pix_to_buffer(glm::uvec2 pixelCords, uint32_t samples, glm::vec3 pixelColor)
+void Renderer::WritePixelToBuffer(glm::uvec2 pixelCords, uint32_t samples, glm::vec3 pixelColor)
 {
 	pixelColor /= samples;
 	pixelColor = glm::sqrt(pixelColor);

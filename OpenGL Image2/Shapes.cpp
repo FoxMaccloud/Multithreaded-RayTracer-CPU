@@ -1,8 +1,8 @@
-#include "Shapes.h"
-#include "Objects.h"
+#include "Shapes.hpp"
+#include "Objects.hpp"
 
 namespace Shapes {
-	float Sphere::fast_hit(const Ray& r, const float tMin, const float tMax) const
+	float Sphere::FastHit(const Ray& r, const float tMin, const float tMax) const
 	{
 		const glm::vec3 oc = r.origin - m_center;
 		const float b = glm::dot(oc, r.direction);
@@ -24,24 +24,24 @@ namespace Shapes {
 		return root;
 	}
 
-	HitRecord Sphere::compute_hit(const Ray& r, const float t) const
+	HitRecord Sphere::ComputeHit(const Ray& r, const float t) const
 	{
 		HitRecord result{};
 		result.t = t;
-		result.p = r.at(result.t);
+		result.p = r.At(result.t);
 		glm::vec3 outNormal = glm::normalize(result.p - m_center);
-		outNormal *= sign(m_radius);
-		result.set_face_normal(r, outNormal);
+		outNormal *= Sign(m_radius);
+		result.SetFaceNormal(r, outNormal);
 		return result;
 	}
 
-	std::optional<HitRecord> Sphere::hit(const Ray& r, const float tMin, const float tMax) const
+	std::optional<HitRecord> Sphere::Hit(const Ray& r, const float tMin, const float tMax) const
 	{
 		std::optional<HitRecord> emptyResult{};
 
-		auto t = fast_hit(r, tMin, tMax);
+		auto t = FastHit(r, tMin, tMax);
 		if (t < std::numeric_limits<float>::max())
-			return compute_hit(r, t);
+			return ComputeHit(r, t);
 		else
 			return emptyResult;
 	}

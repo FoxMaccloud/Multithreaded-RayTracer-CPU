@@ -1,10 +1,10 @@
 #include <iostream>
-#include "Gui.h"
+#include "Gui.hpp"
 
 int main()
 {
-	std::unique_ptr<Gui> gui = std::make_unique<Gui>();
-	gui->run();
+	Gui gui;
+	gui.run();
 
 	return 0;
 }

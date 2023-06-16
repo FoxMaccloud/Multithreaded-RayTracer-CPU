@@ -1,4 +1,4 @@
-#include "ThreadPool.h"
+#include "ThreadPool.hpp"
 
 ThreadPool::ThreadPool(int nThreads)
 {
@@ -12,7 +12,7 @@ ThreadPool::ThreadPool(int nThreads)
 
 	for (int i = 0; i < nThreads; i++)
 	{
-		m_threads.emplace_back([this]() {worker(); });
+		m_threads.emplace_back([this]() {Worker(); });
 	}
 }
 
@@ -30,7 +30,7 @@ ThreadPool::~ThreadPool()
 	}
 }
 
-void ThreadPool::worker()
+void ThreadPool::Worker()
 {
 	while (true)
 	{
@@ -51,14 +51,14 @@ void ThreadPool::worker()
 	}
 }
 
-void ThreadPool::emergency_stop()
+void ThreadPool::EmergencyStop()
 {
 	std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
 	m_emergencyStop = true;
 	m_poolNotifier.notify_all();
 }
 
-void ThreadPool::pause(bool pauseState)
+void ThreadPool::Pause(bool pauseState)
 {
 	std::unique_lock<std::recursive_mutex> queueLock(m_queueMutex);
 	m_paused = pauseState;

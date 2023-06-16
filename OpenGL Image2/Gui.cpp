@@ -1,14 +1,13 @@
-#include "Gui.h"
+#include "Gui.hpp"
+#include "Image.hpp"
 
-#include "Image.h"
-
-Gui::Gui() : m_renderer{std::make_unique<Renderer>()}
+Gui::Gui()
 {
-	create_image_buffer();
-	setup_main_window();
-	m_renderer->set_image_size(m_windowSize.x, m_windowSize.y);
-	m_renderer->set_new_buffer(m_imageBuffer);
-	m_renderer->set_results_buffer(m_results);
+	CreateImageBuffer();
+	SetupMainWindow();
+	m_renderer.SetImageSize(m_windowSize.x, m_windowSize.y);
+	m_renderer.SetNewBuffer(m_imageBuffer);
+	m_renderer.SetResultsBuffer(m_results);
 }
 
 Gui::~Gui()
@@ -21,13 +20,13 @@ Gui::~Gui()
 	glfwTerminate();
 }
 
-void Gui::resize_image(ImVec2 newSize)
+void Gui::ResizeImage(ImVec2 newSize)
 {
 	m_windowSize = newSize;
 
 	{
-		m_topBar.x = m_windowSize.x;
-		m_topBar.y = m_topbarHeight;
+		m_topBar.x = (float)m_windowSize.x;
+		m_topBar.y = (float)m_topbarHeight;
 
 		m_settingsWindow.x = m_windowSize.x / m_settingsWidthScale;
 		m_settingsWindow.y = m_windowSize.y - m_topbarHeight;
@@ -36,18 +35,18 @@ void Gui::resize_image(ImVec2 newSize)
 		m_viewport.y = m_windowSize.y - m_topbarHeight;
 	}
 
-	create_image_buffer();
-	m_renderer->set_image_size(m_viewport.x, m_viewport.y);
-	m_renderer->set_new_buffer(m_imageBuffer);
+	CreateImageBuffer();
+	m_renderer.SetImageSize(m_viewport.x, m_viewport.y);
+	m_renderer.SetNewBuffer(m_imageBuffer);
 }
 
-void Gui::create_image_buffer()
+void Gui::CreateImageBuffer()
 {
 	m_imageBuffer.clear();
-	m_imageBuffer.resize(m_viewport.x * m_viewport.y, 0x00000000);
+	m_imageBuffer.resize((size_t)(m_viewport.x * m_viewport.y), 0x00000000);
 }
 
-void Gui::setup_main_window()
+void Gui::SetupMainWindow()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -67,7 +66,7 @@ void Gui::setup_main_window()
 	glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 	//glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
-	m_window = glfwCreateWindow(m_windowSize.x, m_windowSize.y, WINDOW_TITLE, NULL, NULL);
+	m_window = glfwCreateWindow((int)m_windowSize.x, (int)m_windowSize.y, WINDOW_TITLE, NULL, NULL);
 
 	if (!m_window)
 		glfwTerminate();
@@ -85,37 +84,37 @@ void Gui::setup_main_window()
 	ImGui_ImplOpenGL3_Init("#version 140");
 }
 
-void Gui::enable_window_resize()
+void Gui::EnableWindowResize()
 {
 	// Enable when not rendering
 	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_TRUE);
 }
 
-void Gui::disable_window_resize()
+void Gui::DisableWindowResize()
 {
 	// Disable when rendering
 	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
 }
 
-inline void Gui::menu()
+inline void Gui::Menu()
 {
 	ImVec2 size = ImGui::GetIO().DisplaySize;
 
-	switch (m_renderer->m_state)
+	switch (m_renderer.m_state)
 	{
 	case (Renderer::RenderState::Running):
-		disable_window_resize();
+		DisableWindowResize();
 		break;
 	case (Renderer::RenderState::Ready):
-		enable_window_resize();
+		EnableWindowResize();
 		break;
 	default:
 		break;
 	}
 
-	if (((m_windowSize.x != size.x) || (m_windowSize.y != size.y)) && m_renderer->m_state == Renderer::RenderState::Ready)
+	if (((m_windowSize.x != size.x) || (m_windowSize.y != size.y)) && m_renderer.m_state == Renderer::RenderState::Ready)
 		if (m_windowSize.x > 0 && m_windowSize.y > 0)
-			resize_image(size);
+			ResizeImage(size);
 
 	// topbar
 	{
@@ -171,7 +170,7 @@ inline void Gui::menu()
 
 
 		ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
-		ImGui::SetWindowPos(ImVec2((m_windowSize.x - m_settingsWindow.x), m_topbarHeight), NULL);
+		ImGui::SetWindowPos(ImVec2((m_windowSize.x - m_settingsWindow.x), (float)m_topbarHeight), NULL);
 		ImGui::SetWindowSize(m_settingsWindow, NULL);
 		{
 			ImGui::Text("Numer of threads");
@@ -221,20 +220,20 @@ inline void Gui::menu()
 
 			if (ImGui::Button("START"))
 			{
-				if (m_renderer->m_state == Renderer::RenderState::Ready)
+				if (m_renderer.m_state == Renderer::RenderState::Ready)
 				{
-					create_image_buffer();
-					m_renderer->set_samples_per_pixel(samplesPerPixel);
-					m_renderer->set_max_ray_bounces(maxRayDepth);
-					m_renderer->set_nThreads(nThreads);
+					CreateImageBuffer();
+					m_renderer.SetSamplesPerPixel(samplesPerPixel);
+					m_renderer.SetMaxRayBounces(maxRayDepth);
+					m_renderer.SetNumThreads(nThreads);
 
 					switch (currentIndexStrat)
 					{
 					case (0):
-						m_renderer->m_strat = Renderer::Strategy::Line;
+						m_renderer.m_strat = Renderer::Strategy::Line;
 						break;
 					case(1):
-						m_renderer->m_strat = Renderer::Strategy::Quad;
+						m_renderer.m_strat = Renderer::Strategy::Quad;
 						break;
 					default:
 						throw std::runtime_error("Error: Invalid strategy!");
@@ -244,25 +243,25 @@ inline void Gui::menu()
 					switch (currentIndexScene)
 					{
 					case (0):
-						m_renderer->set_scene(Renderer::Scenes::threeBalls);
+						m_renderer.SetScene(Renderer::Scenes::threeBalls);
 						break;
 					case(1):
-						m_renderer->set_scene(Renderer::Scenes::test2);
+						m_renderer.SetScene(Renderer::Scenes::test2);
 						break;
 					case(2):
-						m_renderer->set_scene(Renderer::Scenes::random);
+						m_renderer.SetScene(Renderer::Scenes::random);
 						break;
 					default:
 						throw std::runtime_error("Error: Invalid Scene!");
 						break;
 					}
-					m_renderer->set_nThreads(nThreads);
-					m_renderer->start();
+					m_renderer.SetNumThreads(nThreads);
+					m_renderer.Start();
 				}
 			}
 			// TODO: Disable when Ready. Swap pause for restart on pause.
-			ImGui::SameLine(); if (ImGui::Button("PAUSE")) { m_renderer->pause(); };
-			ImGui::SameLine(); if (ImGui::Button("ABORT")) { m_renderer->stop(); };
+			ImGui::SameLine(); if (ImGui::Button("PAUSE")) { m_renderer.Pause(); };
+			ImGui::SameLine(); if (ImGui::Button("ABORT")) { m_renderer.Stop(); };
 
 			
 
@@ -317,7 +316,7 @@ void Gui::run()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		menu();
+		Menu();
 
 		GLuint texture;
 		GLCall(glGenTextures(1, &texture));
@@ -334,7 +333,7 @@ void Gui::run()
 		{
 			ImGui::Begin("##viewportRender", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 			ImGui::SetWindowSize(m_viewport, NULL);
-			ImGui::SetWindowPos(ImVec2(0, m_topbarHeight), NULL);
+			ImGui::SetWindowPos(ImVec2(0, (float)m_topbarHeight), NULL);
 			{
 				ImGui::Image((void*)(intptr_t)m_imageTexture, m_viewport);
 			}

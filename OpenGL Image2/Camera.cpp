@@ -1,8 +1,8 @@
 #include "glm/glm/gtc/random.hpp"
-#include "Camera.h"
+#include "Camera.hpp"
 
 Camera::Camera(ViewMatrix viewmatrix, float fov, float aspectRatio, float aperture, float focusDist) {
-	auto theta = deg_to_rad(fov);
+	auto theta = DegToRad(fov);
 	auto h = std::tan(theta / 2);
 	m_viewportHeight = 2.0f * h;
 	m_viewportWidth = aspectRatio * m_viewportHeight;
@@ -18,7 +18,7 @@ Camera::Camera(ViewMatrix viewmatrix, float fov, float aspectRatio, float apertu
 	m_lowerLeftCorner = m_origin - m_horizontal / 2.0f - m_vertical / 2.0f - focusDist * w;
 }
 
-Ray Camera::new_ray(float s, float t) const
+Ray Camera::NewRay(float s, float t) const
 {
 	glm::vec2 randVec = glm::diskRand(m_lensRadius);
 	glm::vec3 offset = u * randVec.x + v * randVec.y;

@@ -1,7 +1,7 @@
-#include "Renderer.h"
-#include "Objects.h"
+#include "Renderer.hpp"
+#include "Objects.hpp"
 
-void Renderer::set_selected_scene(Scenes scene)
+void Renderer::SetSelectedScene(Scenes scene)
 {
 	switch (scene)
 	{
@@ -12,11 +12,11 @@ void Renderer::set_selected_scene(Scenes scene)
 		constexpr auto distToFocus = 10.0f;
 		constexpr auto aperture = 0.1f;
 
-		m_camera = std::make_unique<Camera>(viewmatrix, 20.0f, aspect_ratio(), aperture, distToFocus);
+		m_camera = std::make_unique<Camera>(viewmatrix, 20.0f, AspectRatio(), aperture, distToFocus);
 
-		m_scene.add(Shapes::Sphere(glm::vec3(1, 0, 2), 1.4f), Materials::Metal(Colors::Steel, 0.0f));
-		m_scene.add(Shapes::Sphere(glm::vec3(1, 1, -1.7), 1.0f), Materials::Metal(Colors::Brass, 0.0f));
-		m_scene.add(Shapes::Sphere(glm::vec3(-1, -1, -1.3), 0.5f), Materials::Metal(Colors::Gold, 0.0f));
+		m_scene.Add(Shapes::Sphere(glm::vec3(1, 0, 2), 1.4f), Materials::Metal(Colors::Steel, 0.0f));
+		m_scene.Add(Shapes::Sphere(glm::vec3(1, 1, -1.7), 1.0f), Materials::Metal(Colors::Brass, 0.0f));
+		m_scene.Add(Shapes::Sphere(glm::vec3(-1, -1, -1.3), 0.5f), Materials::Metal(Colors::Gold, 0.0f));
 	}
 		break;
 	case Renderer::Scenes::test2:
@@ -29,7 +29,7 @@ void Renderer::set_selected_scene(Scenes scene)
 		constexpr auto distToFocus = 10.0f;
 		constexpr auto aperture = 0.1f;
 
-		m_camera = std::make_unique<Camera>(viewmatrix, 20.0f, aspect_ratio(), aperture, distToFocus);
+		m_camera = std::make_unique<Camera>(viewmatrix, 20.0f, AspectRatio(), aperture, distToFocus);
 
 		for (int j = -5; j < 5; j++)
 		{
@@ -43,7 +43,7 @@ void Renderer::set_selected_scene(Scenes scene)
 					size = 0.1f;
 				//auto soft = 0.1f * m_unifDist(m_rng);
 				auto soft = 0.0f;
-				m_scene.add(Shapes::Sphere(place, size), Materials::Metal(rngCol, soft));
+				m_scene.Add(Shapes::Sphere(place, size), Materials::Metal(rngCol, soft));
 			}
 		}
 	}

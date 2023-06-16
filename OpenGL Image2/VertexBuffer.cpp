@@ -1,6 +1,5 @@
-#include "VertexBuffer.h"
-
-#include "Image.h"
+#include "VertexBuffer.hpp"
+#include "Image.hpp"
 
 VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 {
@@ -14,12 +13,12 @@ VertexBuffer::~VertexBuffer()
 	GLCall(glDeleteBuffers(1, &m_renderID));
 }
 
-void VertexBuffer::bind()
+void VertexBuffer::Bind()
 {
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_renderID));
 }
 
-void VertexBuffer::unbind()
+void VertexBuffer::Unbind()
 {
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
