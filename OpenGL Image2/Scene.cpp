@@ -5,7 +5,7 @@ void Renderer::SetSelectedScene(Scenes scene)
 {
 	switch (scene)
 	{
-	case Renderer::Scenes::threeBalls:
+	case Renderer::Scenes::ThreeBalls:
 	{
 		Camera::ViewMatrix viewmatrix{ glm::vec3(13, 2, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0) };
 
@@ -19,10 +19,10 @@ void Renderer::SetSelectedScene(Scenes scene)
 		m_scene.Add(Shapes::Sphere(glm::vec3(-1, -1, -1.3), 0.5f), Materials::Metal(Colors::Gold, 0.0f));
 	}
 		break;
-	case Renderer::Scenes::test2:
+	case Renderer::Scenes::Test2:
 		throw new std::runtime_error("test2 has not been implemented yet!");
 		break;
-	case Renderer::Scenes::random:
+	case Renderer::Scenes::Random:
 	{
 		Camera::ViewMatrix viewmatrix{ glm::vec3(13, 2, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0) };
 

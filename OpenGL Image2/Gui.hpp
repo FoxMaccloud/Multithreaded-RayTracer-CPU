@@ -13,6 +13,10 @@
 
 #define WINDOW_TITLE "CPU Benchmark"
 
+#define DEFAULT_NTHREADS 1
+#define DEFAULT_SAMPLES_PER_PIXEL 256
+#define DEFAULT_MAX_RAY_DEPTH 32
+
 #include "Renderer.hpp"
 #include "Image.hpp"
 

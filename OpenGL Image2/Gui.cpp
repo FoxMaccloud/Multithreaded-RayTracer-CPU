@@ -154,20 +154,13 @@ inline void Gui::Menu()
 	{
 
 		// ImGui doesn't take uints
-		static int nThreads = 1;
-		static int samplesPerPixel = 16;
-		static int maxRayDepth = 10;
-
+		static int nThreads = DEFAULT_NTHREADS;
+		static int samplesPerPixel = DEFAULT_SAMPLES_PER_PIXEL;
+		static int maxRayDepth = DEFAULT_MAX_RAY_DEPTH;
 
 		const char* stratCopy[] = { "Line" , "Quad" };
 		static int currentIndexStrat = 0;
-		const char* showValueStrat = stratCopy[currentIndexStrat];
-
-		const char* scenes[] = { "threeBalls", "test2", "random"};
-		static int currentIndexScene = 0;
-		const char* showValueScenes = scenes[currentIndexScene];
-
-
+		const char* showValueStrat = stratCopy[currentIndexStrat];		
 
 		ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 		ImGui::SetWindowPos(ImVec2((m_windowSize.x - m_settingsWindow.x), (float)m_topbarHeight), NULL);
@@ -204,12 +197,13 @@ inline void Gui::Menu()
 			}
 
 			ImGui::Text("Scene");
-			if (ImGui::BeginCombo("##scene", showValueScenes, NULL))
+			static int currentIndexScene = 0;
+			if (ImGui::BeginCombo("##scene", m_renderer.m_availableScenes[currentIndexScene].name.c_str(), NULL))
 			{
-				for (int n = 0; n < IM_ARRAYSIZE(scenes); n++)
+				for (int n = 0; n < m_renderer.m_availableScenes.size(); n++)
 				{
 					const bool isSelected = (currentIndexScene == n);
-					if (ImGui::Selectable(scenes[n], isSelected))
+					if (ImGui::Selectable(m_renderer.m_availableScenes[n].name.c_str(), isSelected))
 						currentIndexScene = n;
 
 					if (isSelected)
@@ -239,22 +233,17 @@ inline void Gui::Menu()
 						throw std::runtime_error("Error: Invalid strategy!");
 						break;
 					}
-
-					switch (currentIndexScene)
+					
+					if (currentIndexScene >= 0 && currentIndexScene < m_renderer.m_availableScenes.size())
 					{
-					case (0):
-						m_renderer.SetScene(Renderer::Scenes::threeBalls);
-						break;
-					case(1):
-						m_renderer.SetScene(Renderer::Scenes::test2);
-						break;
-					case(2):
-						m_renderer.SetScene(Renderer::Scenes::random);
-						break;
-					default:
-						throw std::runtime_error("Error: Invalid Scene!");
-						break;
+						Renderer::Scenes selectedScene = m_renderer.m_availableScenes[currentIndexScene].scene;
+						m_renderer.SetScene(selectedScene);
 					}
+					else
+					{
+						throw std::runtime_error("Error: Invalid Scene!");
+					}
+
 					m_renderer.SetNumThreads(nThreads);
 					m_renderer.Start();
 				}

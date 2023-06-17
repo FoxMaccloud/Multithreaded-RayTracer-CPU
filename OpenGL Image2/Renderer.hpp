@@ -9,6 +9,8 @@
 #include <random>
 #include <chrono>
 #include <string>
+#include <utility>
+#include <map>
 
 class Renderer
 {
@@ -27,9 +29,20 @@ public:
 	};
 	enum class Scenes
 	{
-		threeBalls,
-		test2,
-		random
+		ThreeBalls,
+		Test2,
+		Random
+	};
+
+	struct AvailableScenes
+	{
+		std::string name;
+		Scenes scene;
+	};
+	std::vector<AvailableScenes> m_availableScenes = {
+	  AvailableScenes{ "Three Balls", Scenes::ThreeBalls },
+	  AvailableScenes{ "Test2", Scenes::Test2 },
+	  AvailableScenes{ "Random", Scenes::Random },
 	};
 
 	struct Results
